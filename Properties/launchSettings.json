@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "RadioParadisePlayer (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "RadioParadisePlayer (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
