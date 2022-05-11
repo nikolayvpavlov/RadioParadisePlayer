@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -31,6 +32,14 @@ namespace RadioParadisePlayer.Api
             else return null;
         } 
 
+        public static async Task<MemoryStream> DownloadImageAsync(string url)
+        {
+            var stream = await httpClient.GetStreamAsync(url);
+            MemoryStream result = new MemoryStream();
+            await stream.CopyToAsync (result);
+            result.Position = 0;
+            return result;
+        }
         
     }
 }

@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,22 +27,37 @@ namespace RadioParadisePlayer
     {
         Player.Player player;
 
+        BitmapImage bitmapImageSlideshow;
+
         public MainWindow()
         {
             this.InitializeComponent();
             player = new Player.Player();
+            player.PropertyChanged += Player_PropertyChanged;
             FinalizeInitialization();
+        }
+
+        private async void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "CurrentSlideshowPictureUrl":
+                    var stream = await Api.RpApiClient.DownloadImageAsync(player.CurrentSlideshowPictureUrl);
+                    await bitmapImageSlideshow.SetSourceAsync(stream.AsRandomAccessStream());
+                    break;
+            }
         }
 
         void FinalizeInitialization()
         {
-            Binding imgBinding = new Binding()
-            {
-                Source = player,
-                Path = new PropertyPath("CurrentSlideshowPictureUrl")
-            };
-            imgSlideshow.SetBinding(Image.SourceProperty, imgBinding);
-
+            bitmapImageSlideshow = new BitmapImage();
+            //Binding imgBinding = new Binding()
+            //{
+            //    Source = player,
+            //    Path = new PropertyPath("CurrentSlideshowPictureUrl")
+            //};
+            //imgSlideshow.SetBinding(Image.SourceProperty, imgBinding);
+            imgSlideshow.Source = bitmapImageSlideshow;
 
             Binding prgRingBinding = new Binding()
             {
