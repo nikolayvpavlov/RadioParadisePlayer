@@ -1,0 +1,7 @@
+For extended song info.
+
+https://api.radioparadise.com/siteapi.php?file=music::song&withWiki=true&song_id=44100&C_user_id=x
+
+
+
+

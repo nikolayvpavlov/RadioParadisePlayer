@@ -1,0 +1,81 @@
+Accounts:
+
+There are three levels of accounts:
+A level 1 account is required and should be requested/refreshed at app startup.
+Users can be directed to activate higher level accounts as needed.
+
+level 1 :  ANONYMOUS  ( needed for playlist lifecycle )
+level 2 :  BASIC  ( needed to rate songs, and access favorites channel )
+level 3 :  VALIDATED  ( needed to leave song comments )
+
+
+To create a new anonymous user
+https://api.radioparadise.com/api/auth
+
+
+response = {
+    "user_id": "x",
+    "level": "1",
+}
+
+To reauthenticate an existing level 1 user.
+https://api.radioparadise.com/api/auth?auth_user_id=x
+
+To reauthenticate an existing level 2+ user include the "passwd" token
+https://api.radioparadise.com/api/auth?auth_user_id=x&auth_user_passwd=y
+
+The responses will always return a valid account but may return a different user_id or level  than expected.
+( password change or account deletion )
+
+--------------------------------------
+
+Login/Registration
+This is handled by submitting an email.  If the email is new the user is logged in and receives an email with a link to finish validating their account.
+If the email exists the user is not logged in but receives an email with a link they need to visit to validate the returned token.
+This token will need to be tested until it has been validated by the user.  How often and when is up to the app.  Just refreshing this at app startup or before prompting a user to login would be adequate.
+
+eg.
+https://api.radioparadise.com/siteapi.php
+query parameters:
+file=auth::request-login-email
+user_id=x  ( this is just the current user_id )
+source=y   ( source is the client identifier and will be provided )
+email=x
+
+action = 'new-account':   Client can reauthenticate with the returned user_id and passwd you will be returned a level 2 user.
+resposne = {
+action: "new-account"
+data: {
+    email: "email@email.com"
+    passwd: "23423-232-2323-2323-23232323"
+    user_id: "100000000"
+    }
+status: "ok"
+}
+
+action =  'set-auth-token'  :  Client needs to test the
+response = {
+action: "set-auth-token"
+data: {
+    auth_token: "123::sdlkfsjdlkj234234"
+    email: "email@mail.com"
+    expiration_seconds: 1645424032   ( epoch )
+    user_id: "1000000000"
+    }
+status: "ok"
+}
+
+use the auth_token to reauthenticate the user.
+
+reauthenticate the user with the current credentials and the new auth_token
+it will return the current user.  If the level increases from the current user then the token has been consumed.
+
+for a level 1 user
+https://api.radioparadise.com/api/auth?auth_user_id=x&auth_token=123::sdlkfsjdlkj234234
+for a level 2 user
+https://api.radioparadise.com/api/auth?auth_user_id=x&auth_user_passwd=y&auth_token=123::sdlkfsjdlkj234234
+
+
+
+
+

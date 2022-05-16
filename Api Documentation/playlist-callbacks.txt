@@ -1,0 +1,25 @@
+The RP service needs to be notified anytime playback of a song  starts/pauses/unpauses
+
+For start or unpause call update history.
+
+https://api.radioparadise.com/api/update_history
+params:
+song_id
+chan
+source
+player_id
+event
+country_code ( value returned in auth request )
+time  ( current time in seconds,  minus the current position in the song: ie the time the song would have started based on current position )
+
+-----------------------------------------
+
+https://api.radioparadise.com/api/update_pause?
+params:
+pause  ( position in song in milliseconds )
+player_id
+event
+chan
+source
+
+

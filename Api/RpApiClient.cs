@@ -11,23 +11,38 @@ namespace RadioParadisePlayer.Api
 {
     class RpApiClient
     {
-        const string urlProgramBlock = @"https://api.radioparadise.com/api/play?chan=0&event={0}&bitrate=4&info=true";
+        const string urlPlaylist = @"https://api.radioparadise.com/api/gapless";//?C_user_id={0}&player_id={1}&chan={2}&bitrate={3}";
+        const string urlAuth = @"https://api.radioparadise.com/api/auth";
+
+        const int SourceId = 30; //Constant provided by Jarred (RP)
 
         static HttpClient httpClient = new HttpClient();
 
-        public async Task<ProgramBlock> GetProgramBlockAsync (int eventId)
+        static JsonSerializerOptions jsonOptions = new JsonSerializerOptions
         {
-            var url = String.Format(urlProgramBlock, eventId);
+            PropertyNameCaseInsensitive = true,
+            NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
+        };
+
+        public static async Task<User> AuthenticateAsync()
+        {
+            var response = await httpClient.GetAsync(urlAuth);
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<User>(responseContent, jsonOptions);
+            }
+            else return null;
+        }
+
+        public static async Task<Playlist> GetPlaylistAsync()
+        {
+            var url = String.Format(urlPlaylist);
             var response = await httpClient.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
                 string responseContent = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true,
-                    NumberHandling = System.Text.Json.Serialization.JsonNumberHandling.AllowReadingFromString
-                };
-                return JsonSerializer.Deserialize<ProgramBlock>(responseContent, options);
+                return JsonSerializer.Deserialize<Playlist>(responseContent, jsonOptions);
             }
             else return null;
         } 

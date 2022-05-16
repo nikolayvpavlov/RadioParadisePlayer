@@ -1,0 +1,55 @@
+
+Retrieve the gapless playlist.
+
+https://api.radioparadise.com/api/gapless
+query params:
+C_user_id    ( user_id provided in auth request )
+player_id    ( generate a unique identifier for the life of the app install, a uuid is fine )
+chan  (  chan value provided in list_chan )
+bitrate (  bitrate id  )
+source  (  client platform identifier, provided by radio paradise )
+numSongs (  songs to be returned )
+event (  leave this blank or 0 to sync with the live stream,  provide the last event_id in current playlist to fetch
+         songs in the future. )
+
+=======
+The song "cue" value is the server calculated offset in milliseconds.
+The "max_gapless_event_id"  is the last item currently available and the limit on how far a user can skip.
+  when this is reached, client should block skipping.
+The "user_rating" is a value from 0 to 10,  0 for songs not rated.
+Song "type" can be M, V or P ( M = music, V = voice break, P = station break )
+
+{
+    "channel": {
+        "chan": "0",
+        "title": "RP Main Mix",
+        "stream_name": "main"
+    },
+    "bitrate_title": "128k aac",
+    "extension": "m4a",
+    "imgage_base": "\/\/img.radioparadise.com\/",
+    "current_event_id": 2253189,
+    "max_gapless_event_id": 2253219,
+    "slideshow_path": "slideshow\/720\/",
+    "songs": [
+        {
+            "song_id": "32527",
+            "artist": "U2",
+            "title": "One Tree Hill",
+            "year": "1987",
+            "duration": 321500,
+            "album": "The Joshua Tree",
+            "user_rating": 0,
+            "rating": 7.8,
+            "cover_art": "covers\/l\/B000001FS3.jpg",
+            "event_id": 2253189,
+            "gapless_url": "https:\/\/audio-geo.radioparadise.com\/audio\/gapless\/0\/2\/2253189.m4a",
+            "slideshow": [
+                "18431",
+
+            ],
+            "cue": 150000,
+            "type": "M"
+        }
+        ]
+}

@@ -13,20 +13,15 @@ namespace RadioParadisePlayer.Player
         private List<string> pictureUrlList;
         private int currentIndex = 0;
 
-        public int Duration { get; private set; }
-
         public int Count => pictureUrlList.Count;
 
         public string this[int index] => pictureUrlList[index];
 
         public string CurrentPictureUrl => pictureUrlList[currentIndex];
 
-        public SongSlideshow(ProgramBlock block, Song song)
+        public SongSlideshow(Playlist block, Song song)
         {
-            string imgBaseUrl = block.Image_Base;
-            string[] picIds = song.Slideshow.Split(",");
-            Duration = song.Duration / picIds.Length; 
-            pictureUrlList = picIds.Select(pid => "https:" + imgBaseUrl + @"slideshow/720/" + pid + ".jpg").ToList();
+            pictureUrlList = song.Slideshow.Select(pid => "https:" + block.Image_Base + block.Slideshow_Path + pid + ".jpg").ToList();
         }
 
         public void MoveNext()

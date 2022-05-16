@@ -1,0 +1,46 @@
+
+list song comments:
+
+https://api.radioparadise.com/siteapi.php?file=comments::list&song_id=44100&comments_num=20&order=most_popular&comments_offset=0
+valid sort orders are.  [ most_popular, least_popular, newest, oldest ]
+
+==========================
+Following features require level 3 account
+
+-----------------------
+insert song comment:
+
+https://api.radioparadise.com/siteapi.php?file=comments::post&action=insert&song_id=44100&auth_user_id=x&auth_user_passwd=y
+this is a POST request with the following json body. {message: "the message"}
+
+----------------------
+
+edit song comment:
+return the comment body for editing
+https://api.radioparadise.com/siteapi.php?file=comments::post&action=edit&song_id=44100&cid=56fda17f96010a6308d3b97009202895&auth_user_id=x&auth_user_passwd=y
+
+save edited comment
+https://api.radioparadise.com/siteapi.php?file=comments%3A%3Apost&action=update&song_id=44100&cid=56fda17f96010a6308d3b97009202895&auth_user_id=x&auth_user_passwd=y
+this is a POST request with the following json body. {message: "the message"}
+-----------------------
+
+reply to song comment:
+
+get the message body
+https://api.radioparadise.com/siteapi.php?file=comments%3A%3Apost&action=reply&song_id=44100&cid=56fda17f96010a6308d3b97009202895&auth_user_id=x&auth_user_passwd=y
+
+To save is same as insert operation.
+
+
+-----------------------
+
+delete song comment:
+https://api.radioparadise.com/siteapi.php?file=comments::action&cid=56fda17f96010a6308d3b97009202895&action=delete&auth_user_id=x&auth_user_passwd=y
+
+-----------------------
+vote up/down on comment:
+
+https://api.radioparadise.com/siteapi.php?file=comments%3A%3Aaction&cid=43a3c022f72b06174f1cc94ef326aa8f&vote=up&auth_user_id=x&auth_user_passwd=y
+https://api.radioparadise.com/siteapi.php?file=comments%3A%3Aaction&cid=43a3c022f72b06174f1cc94ef326aa8f&vote=down&auth_user_id=x&auth_user_passwd=y
+
+

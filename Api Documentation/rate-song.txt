@@ -1,0 +1,9 @@
+rate a song:
+
+requires account level 2
+
+https://api.radioparadise.com/api/rating?song_id=44100&rating=10&auth_user_id=x&auth_user_passwd=y
+valid values are 1 to 10
+
+
+

@@ -1,0 +1,9 @@
+This a list of the main available bitrates.
+
+
+0 = 32k AAC
+1 = 64k AAC
+2 = 128k AAC
+3 = 320k AAC
+4 = FLAC
+

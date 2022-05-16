@@ -12,9 +12,11 @@ namespace RadioParadisePlayer.Player
 {
     internal class Player : INotifyPropertyChanged
     {
-        private ProgramBlock currentBlock;
-        private int currentBlockElapsedTime;
+        private static User user = null;
+
+        private Playlist currentPlaylist;
         private DispatcherQueue dispatcherQueue;
+        private Timer songTimer;
         private Timer slideshowTimer;
         private SongSlideshow currentSongSlideshow;
 
@@ -48,6 +50,7 @@ namespace RadioParadisePlayer.Player
             }
         }
 
+        private int currentSongIndex;
         private Song currentSong;
 
         public Song CurrentSong
@@ -63,23 +66,53 @@ namespace RadioParadisePlayer.Player
             }
         }
 
+        private int currentSongProgress;
 
-        private void TransitionToBlock (ProgramBlock block)
+        public int CurrentSongProgress
         {
-            currentBlock = block;
-            currentBlockElapsedTime = 0;
-            SetCurrentSong();
+            get { return currentSongProgress; }
+            set
+            {
+                if (currentSongProgress != value)
+                {
+                    currentSongProgress = value;
+                    OnPropertyChanged(nameof(CurrentSongProgress));
+                }
+            }
         }
 
-        private void SetCurrentSong()
+        private async Task LoadPlaylist()
         {
-            CurrentSong = currentBlock?.Songs.Values
-                .FirstOrDefault(s => s.Elapsed >= currentBlockElapsedTime);
+            currentPlaylist = await RpApiClient.GetPlaylistAsync();
+            currentSongIndex = -1;
+            await MoveNextSongAsync();
+        }
+
+        private async Task MoveNextSongAsync()
+        {
+            currentSongIndex++;
+
+            if (currentPlaylist.Songs.Count <= currentSongIndex)
+            {
+                await LoadPlaylist();
+            }
+
+            CurrentSong = currentPlaylist.Songs[currentSongIndex];
+            CurrentSongProgress = CurrentSong.Cue;
+
             //Reset the slideShow;
             slideshowTimer.Stop();
-            currentSongSlideshow = new SongSlideshow(currentBlock, CurrentSong);
+            currentSongSlideshow = new SongSlideshow(currentPlaylist, CurrentSong);
             CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
             slideshowTimer.Start();
+        }
+
+        private void SongTimer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            dispatcherQueue.TryEnqueue(async () =>
+            {
+                await MoveNextSongAsync();
+            });
         }
 
         private void SlideshowTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -94,16 +127,22 @@ namespace RadioParadisePlayer.Player
         public Player()
         {
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            slideshowTimer = new Timer(9_500); //Magic constant; it seems that for every song there are pics to change each 9250 secs;
+            slideshowTimer = new Timer(8000); //10 secs minus 2 secs for fade-out / fade-in, following Jarred (RP)
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
+
+            songTimer = new Timer(500);
+            songTimer.Elapsed += SongTimer_Elapsed;
         }
+
 
         public async Task PlayAsync()
         {
             IsLoading = true;
-            Api.RpApiClient apiClient = new Api.RpApiClient();
-            var currentBlock = await apiClient.GetProgramBlockAsync(0);
-            TransitionToBlock(currentBlock);
+            if (user is null)
+            {
+                user = await RpApiClient.AuthenticateAsync();
+            }
+            await LoadPlaylist();
             IsLoading = false;
         }
 

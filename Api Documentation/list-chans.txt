@@ -1,0 +1,5 @@
+
+retrieve the list of channels for a user.
+will want to refresh this perodically.
+
+https://api.radioparadise.com/api/list_chan?C_user_id=x
