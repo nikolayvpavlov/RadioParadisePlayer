@@ -7,11 +7,23 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
+    <NavigationView x:Name="navigationView" IsSettingsVisible="True" PaneDisplayMode="LeftCompact"
+                    SelectionChanged="navigationView_SelectionChanged">
+        <NavigationView.MenuItems>
+            <NavigationViewItem Icon="Play" Content="Play" />
+        </NavigationView.MenuItems>
         <Grid>
-            <Image x:Name="imgSlideshow" />
+            <Image x:Name="imgSlideshowOne" Stretch="UniformToFill">
+                <Image.OpacityTransition>
+                    <ScalarTransition Duration="00:00:02" />
+                </Image.OpacityTransition>
+            </Image>
+            <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill">
+                <Image.OpacityTransition>
+                    <ScalarTransition Duration="00:00:02" />
+                </Image.OpacityTransition>
+            </Image>
             <ProgressRing x:Name="progressRing" IsActive="false" Visibility="Collapsed"/>
         </Grid>
-    </StackPanel>
+    </NavigationView>
 </Window>

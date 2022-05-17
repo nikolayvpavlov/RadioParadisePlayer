@@ -27,11 +27,15 @@ namespace RadioParadisePlayer
     {
         Player.Player player;
 
-        BitmapImage bitmapImageSlideshow;
+        BitmapImage bitmapImageSlideshowOne;
+        BitmapImage bitmapImageSlideshowTwo;
 
         public MainWindow()
         {
             this.InitializeComponent();
+
+            ExtendsContentIntoTitleBar = true;
+
             player = new Player.Player();
             player.PropertyChanged += Player_PropertyChanged;
             FinalizeInitialization();
@@ -43,21 +47,30 @@ namespace RadioParadisePlayer
             {
                 case "CurrentSlideshowPictureUrl":
                     var stream = await Api.RpApiClient.DownloadImageAsync(player.CurrentSlideshowPictureUrl);
-                    await bitmapImageSlideshow.SetSourceAsync(stream.AsRandomAccessStream());
+
+                    if (imgSlideshowOne.Opacity == 0)
+                    {
+                        await bitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
+                        imgSlideshowOne.Opacity = 1;
+                        imgSlideshowTwo.Opacity = 0;
+                    }  
+                    else
+                    {
+                        await bitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
+                        imgSlideshowOne.Opacity = 0;
+                        imgSlideshowTwo.Opacity = 1;
+                    }
                     break;
             }
         }
 
         void FinalizeInitialization()
         {
-            bitmapImageSlideshow = new BitmapImage();
-            //Binding imgBinding = new Binding()
-            //{
-            //    Source = player,
-            //    Path = new PropertyPath("CurrentSlideshowPictureUrl")
-            //};
-            //imgSlideshow.SetBinding(Image.SourceProperty, imgBinding);
-            imgSlideshow.Source = bitmapImageSlideshow;
+            bitmapImageSlideshowOne = new BitmapImage();
+            imgSlideshowOne.Source = bitmapImageSlideshowOne;
+
+            bitmapImageSlideshowTwo = new BitmapImage();
+            imgSlideshowTwo.Source = bitmapImageSlideshowTwo;
 
             Binding prgRingBinding = new Binding()
             {
@@ -76,9 +89,8 @@ namespace RadioParadisePlayer
 
         }
 
-        private async void myButton_Click(object sender, RoutedEventArgs e)
+        private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            myButton.Content = "Clicked";
             await player.PlayAsync();
         }
     }

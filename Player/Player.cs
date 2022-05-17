@@ -138,7 +138,7 @@ namespace RadioParadisePlayer.Player
         public Player()
         {
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            slideshowTimer = new System.Timers.Timer(8000); //10 secs minus 2 secs for fade-out / fade-in, following Jarred (RP)
+            slideshowTimer = new System.Timers.Timer(10_000); //10 secs following Jarred (RP)
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
         }
 
