@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
@@ -13,12 +14,13 @@ namespace RadioParadisePlayer.Player
     internal class Player : INotifyPropertyChanged
     {
         private static User user = null;
-
         private Playlist currentPlaylist;
         private DispatcherQueue dispatcherQueue;
-        private Timer songTimer;
-        private Timer slideshowTimer;
+        private Task playerTask;
+        private CancellationTokenSource ctsPlayer;
+        private System.Timers.Timer slideshowTimer;
         private SongSlideshow currentSongSlideshow;
+        private object lockSlideshow = new object();
 
         private bool isLoading;
 
@@ -81,59 +83,64 @@ namespace RadioParadisePlayer.Player
             }
         }
 
-        private async Task LoadPlaylist()
-        {
-            currentPlaylist = await RpApiClient.GetPlaylistAsync();
-            currentSongIndex = -1;
-            await MoveNextSongAsync();
-        }
-
-        private async Task MoveNextSongAsync()
+        private void MoveNextSong()
         {
             currentSongIndex++;
-
-            if (currentPlaylist.Songs.Count <= currentSongIndex)
-            {
-                await LoadPlaylist();
-            }
 
             CurrentSong = currentPlaylist.Songs[currentSongIndex];
             CurrentSongProgress = CurrentSong.Cue;
 
             //Reset the slideShow;
             slideshowTimer.Stop();
-            currentSongSlideshow = new SongSlideshow(currentPlaylist, CurrentSong);
-            CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
+            lock (lockSlideshow)
+            {
+                currentSongSlideshow = new SongSlideshow(currentPlaylist, CurrentSong);
+                CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
+            }
             slideshowTimer.Start();
         }
 
-        private void SongTimer_Elapsed(object sender, ElapsedEventArgs e)
+        
+        private async Task PlayerWoker(CancellationToken cancellation)
         {
-            dispatcherQueue.TryEnqueue(async () =>
+            while (!cancellation.IsCancellationRequested)
             {
-                await MoveNextSongAsync();
-            });
+                if (currentPlaylist is null ||
+                       (currentSongProgress >= currentSong.Duration &&
+                       currentSongIndex >= currentPlaylist.Songs.Count))
+                {
+                    currentPlaylist = await RpApiClient.GetPlaylistAsync();
+                    currentSongIndex = -1;
+                    dispatcherQueue.TryEnqueue(MoveNextSong);
+                }
+                else if (currentSongProgress >= currentSong.Duration)
+                {
+                    dispatcherQueue.TryEnqueue(MoveNextSong);
+                }
+                dispatcherQueue.TryEnqueue(() => CurrentSongProgress += 500);
+                await Task.Delay(500, cancellation);
+            }
+
         }
 
         private void SlideshowTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             dispatcherQueue.TryEnqueue(() =>
             {
-                currentSongSlideshow.MoveNext();
-                CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
+                lock (lockSlideshow)
+                {
+                    currentSongSlideshow.MoveNext();
+                    CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
+                }
             });
         }
 
         public Player()
         {
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
-            slideshowTimer = new Timer(8000); //10 secs minus 2 secs for fade-out / fade-in, following Jarred (RP)
+            slideshowTimer = new System.Timers.Timer(8000); //10 secs minus 2 secs for fade-out / fade-in, following Jarred (RP)
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
-
-            songTimer = new Timer(500);
-            songTimer.Elapsed += SongTimer_Elapsed;
         }
-
 
         public async Task PlayAsync()
         {
@@ -142,12 +149,13 @@ namespace RadioParadisePlayer.Player
             {
                 user = await RpApiClient.AuthenticateAsync();
             }
-            await LoadPlaylist();
+            ctsPlayer = new CancellationTokenSource();
+            playerTask = Task.Run(async () => await PlayerWoker(ctsPlayer.Token));
             IsLoading = false;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
-        
+
         protected virtual void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
