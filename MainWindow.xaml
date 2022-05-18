@@ -13,12 +13,12 @@
             <NavigationViewItem Icon="Play" Content="Play" />
         </NavigationView.MenuItems>
         <Grid>
-            <Image x:Name="imgSlideshowOne" Stretch="UniformToFill">
+            <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}">
                 <Image.OpacityTransition>
                     <ScalarTransition Duration="00:00:02" />
                 </Image.OpacityTransition>
             </Image>
-            <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill">
+            <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" >
                 <Image.OpacityTransition>
                     <ScalarTransition Duration="00:00:02" />
                 </Image.OpacityTransition>

@@ -27,14 +27,17 @@ namespace RadioParadisePlayer
     {
         Player.Player player;
 
-        BitmapImage bitmapImageSlideshowOne;
-        BitmapImage bitmapImageSlideshowTwo;
+        BitmapImage BitmapImageSlideshowOne { get; set; }
+        BitmapImage BitmapImageSlideshowTwo { get; set; }
 
         public MainWindow()
         {
             this.InitializeComponent();
 
             ExtendsContentIntoTitleBar = true;
+            BitmapImageSlideshowOne = new BitmapImage();
+            BitmapImageSlideshowTwo = new BitmapImage();
+
 
             player = new Player.Player();
             player.PropertyChanged += Player_PropertyChanged;
@@ -50,13 +53,13 @@ namespace RadioParadisePlayer
 
                     if (imgSlideshowOne.Opacity == 0)
                     {
-                        await bitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
+                        await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
                         imgSlideshowOne.Opacity = 1;
                         imgSlideshowTwo.Opacity = 0;
                     }  
                     else
                     {
-                        await bitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
+                        await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
                         imgSlideshowOne.Opacity = 0;
                         imgSlideshowTwo.Opacity = 1;
                     }
@@ -66,12 +69,6 @@ namespace RadioParadisePlayer
 
         void FinalizeInitialization()
         {
-            bitmapImageSlideshowOne = new BitmapImage();
-            imgSlideshowOne.Source = bitmapImageSlideshowOne;
-
-            bitmapImageSlideshowTwo = new BitmapImage();
-            imgSlideshowTwo.Source = bitmapImageSlideshowTwo;
-
             Binding prgRingBinding = new Binding()
             {
                 Source = player,
@@ -86,7 +83,6 @@ namespace RadioParadisePlayer
                 Converter = new BoolToVisibilityConverter()
             };
             progressRing.SetBinding(ProgressRing.VisibilityProperty, prgRingVisibilityBinding);
-
         }
 
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
