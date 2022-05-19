@@ -11,9 +11,10 @@ namespace RadioParadisePlayer.Api
 {
     class RpApiClient
     {
-        const string urlPlaylist = @"https://api.radioparadise.com/api/gapless";//?C_user_id={0}&player_id={1}&chan={2}&bitrate={3}";
+        const string urlPlaylist = @"https://api.radioparadise.com/api/gapless?C_user_id={0}&player_id={1}&chan={2}&bitrate={3}&source={4}";
         const string urlAuth = @"https://api.radioparadise.com/api/auth";
 
+        const string PlayerId = "{2015FABE-E98E-4071-8232-57494B06D73B}";
         const int SourceId = 30; //Constant provided by Jarred (RP)
 
         static HttpClient httpClient = new HttpClient();
@@ -35,9 +36,9 @@ namespace RadioParadisePlayer.Api
             else return null;
         }
 
-        public static async Task<Playlist> GetPlaylistAsync()
+        public static async Task<Playlist> GetPlaylistAsync(string userId, string channel, string bitrate)
         {
-            var url = String.Format(urlPlaylist);
+            var url = String.Format(urlPlaylist, userId, PlayerId, channel, bitrate, SourceId);
             var response = await httpClient.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {
@@ -55,6 +56,5 @@ namespace RadioParadisePlayer.Api
             result.Position = 0;
             return result;
         }
-        
     }
 }

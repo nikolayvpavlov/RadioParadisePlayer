@@ -83,6 +83,13 @@ namespace RadioParadisePlayer.Player
             }
         }
 
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         private void MoveNextSong()
         {
             currentSongIndex++;
@@ -100,17 +107,20 @@ namespace RadioParadisePlayer.Player
             slideshowTimer.Start();
         }
 
-        
+        private async Task LoadPlaylist ()
+        {
+            currentPlaylist = await RpApiClient.GetPlaylistAsync(user.User_Id, "0", "3");
+            currentSongIndex = -1;
+        }
+
         private async Task PlayerWoker(CancellationToken cancellation)
         {
             while (!cancellation.IsCancellationRequested)
             {
-                if (currentPlaylist is null ||
-                       (currentSongProgress >= currentSong.Duration &&
-                       currentSongIndex >= currentPlaylist.Songs.Count))
+                if (currentSongProgress >= currentSong.Duration &&
+                    currentSongIndex >= currentPlaylist.Songs.Count)
                 {
-                    currentPlaylist = await RpApiClient.GetPlaylistAsync();
-                    currentSongIndex = -1;
+                    await LoadPlaylist();
                     dispatcherQueue.TryEnqueue(MoveNextSong);
                 }
                 else if (currentSongProgress >= currentSong.Duration)
@@ -120,7 +130,6 @@ namespace RadioParadisePlayer.Player
                 dispatcherQueue.TryEnqueue(() => CurrentSongProgress += 500);
                 await Task.Delay(500, cancellation);
             }
-
         }
 
         private void SlideshowTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -150,15 +159,10 @@ namespace RadioParadisePlayer.Player
                 user = await RpApiClient.AuthenticateAsync();
             }
             ctsPlayer = new CancellationTokenSource();
+            await LoadPlaylist();
+            MoveNextSong();
             playerTask = Task.Run(async () => await PlayerWoker(ctsPlayer.Token));
             IsLoading = false;
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

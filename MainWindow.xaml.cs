@@ -27,6 +27,8 @@ namespace RadioParadisePlayer
     {
         Player.Player player;
 
+        Microsoft.UI.Media.Playback.MediaPlayer mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
+
         BitmapImage BitmapImageSlideshowOne { get; set; }
         BitmapImage BitmapImageSlideshowTwo { get; set; }
 
@@ -88,6 +90,22 @@ namespace RadioParadisePlayer
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             await player.PlayAsync();
+
+            mPlayer.MediaFailed += MPlayer_MediaFailed;
+
+            var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(player.CurrentSong.Gapless_Url));
+            mPlayer.Source = source;
+            mPlayer.Play();
+
+            //WMPLib.WindowsMediaPlayer mediaPlayer = new WMPLib.WindowsMediaPlayer();
+            //mediaPlayer.URL = player.CurrentSong.Gapless_Url;
+            //mediaPlayer.controls.currentPosition = player.CurrentSong.Cue / 1000;
+            //mediaPlayer.controls.play();
+        }
+
+        private void MPlayer_MediaFailed(Microsoft.UI.Media.Playback.MediaPlayer sender, Microsoft.UI.Media.Playback.MediaPlayerFailedEventArgs args)
+        {
+            string s = args.ErrorMessage;
         }
     }
 }
