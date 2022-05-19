@@ -27,7 +27,7 @@ namespace RadioParadisePlayer
     {
         Player.Player player;
 
-        Microsoft.UI.Media.Playback.MediaPlayer mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
+        Microsoft.UI.Media.Playback.MediaPlayer mPlayer;
 
         BitmapImage BitmapImageSlideshowOne { get; set; }
         BitmapImage BitmapImageSlideshowTwo { get; set; }
@@ -40,9 +40,12 @@ namespace RadioParadisePlayer
             BitmapImageSlideshowOne = new BitmapImage();
             BitmapImageSlideshowTwo = new BitmapImage();
 
-
             player = new Player.Player();
             player.PropertyChanged += Player_PropertyChanged;
+
+            mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
+            mPlayer.MediaFailed += MPlayer_MediaFailed;
+
             FinalizeInitialization();
         }
 
@@ -91,16 +94,10 @@ namespace RadioParadisePlayer
         {
             await player.PlayAsync();
 
-            mPlayer.MediaFailed += MPlayer_MediaFailed;
-
             var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(player.CurrentSong.Gapless_Url));
             mPlayer.Source = source;
+            mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(player.CurrentSong.Cue);
             mPlayer.Play();
-
-            //WMPLib.WindowsMediaPlayer mediaPlayer = new WMPLib.WindowsMediaPlayer();
-            //mediaPlayer.URL = player.CurrentSong.Gapless_Url;
-            //mediaPlayer.controls.currentPosition = player.CurrentSong.Cue / 1000;
-            //mediaPlayer.controls.play();
         }
 
         private void MPlayer_MediaFailed(Microsoft.UI.Media.Playback.MediaPlayer sender, Microsoft.UI.Media.Playback.MediaPlayerFailedEventArgs args)
