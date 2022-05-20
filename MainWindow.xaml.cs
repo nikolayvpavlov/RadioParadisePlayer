@@ -25,84 +25,46 @@ namespace RadioParadisePlayer
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        Player.Player player;
-
-        Microsoft.UI.Media.Playback.MediaPlayer mPlayer;
-
-        BitmapImage BitmapImageSlideshowOne { get; set; }
-        BitmapImage BitmapImageSlideshowTwo { get; set; }
+        PlayerPage playerPage;
 
         public MainWindow()
         {
             this.InitializeComponent();
 
-            ExtendsContentIntoTitleBar = true;
-            BitmapImageSlideshowOne = new BitmapImage();
-            BitmapImageSlideshowTwo = new BitmapImage();
-
-            player = new Player.Player();
-            player.PropertyChanged += Player_PropertyChanged;
-
-            mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
-            mPlayer.MediaFailed += MPlayer_MediaFailed;
-
-            FinalizeInitialization();
-        }
-
-        private async void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "CurrentSlideshowPictureUrl":
-                    var stream = await Api.RpApiClient.DownloadImageAsync(player.CurrentSlideshowPictureUrl);
-
-                    if (imgSlideshowOne.Opacity == 0)
-                    {
-                        await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
-                        imgSlideshowOne.Opacity = 1;
-                        imgSlideshowTwo.Opacity = 0;
-                    }  
-                    else
-                    {
-                        await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
-                        imgSlideshowOne.Opacity = 0;
-                        imgSlideshowTwo.Opacity = 1;
-                    }
-                    break;
-            }
-        }
-
-        void FinalizeInitialization()
-        {
-            Binding prgRingBinding = new Binding()
-            {
-                Source = player,
-                Path = new PropertyPath("IsLoading"),
-            };
-            progressRing.SetBinding(ProgressRing.IsActiveProperty, prgRingBinding);
-
-            Binding prgRingVisibilityBinding = new Binding()
-            {
-                Source = player,
-                Path = new PropertyPath("IsLoading"),
-                Converter = new BoolToVisibilityConverter()
-            };
-            progressRing.SetBinding(ProgressRing.VisibilityProperty, prgRingVisibilityBinding);
+            ExtendsContentIntoTitleBar = true;            
         }
 
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            await player.PlayAsync();
-
-            var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(player.CurrentSong.Gapless_Url));
-            mPlayer.Source = source;
-            mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(player.CurrentSong.Cue);
-            mPlayer.Play();
-        }
-
-        private void MPlayer_MediaFailed(Microsoft.UI.Media.Playback.MediaPlayer sender, Microsoft.UI.Media.Playback.MediaPlayerFailedEventArgs args)
-        {
-            string s = args.ErrorMessage;
+            Page nextPage = null;
+            switch (args.SelectedItemContainer.Name)
+            {
+                case "nviPlay":
+                    if (playerPage is null)
+                    {
+                        playerPage = new PlayerPage();
+                    }
+                    nextPage = playerPage;
+                    break;
+                case "nviStop":
+                    if (playerPage != null)
+                    {
+                        await playerPage.StopAsync();
+                    }
+                    break;
+            }
+            if (args.IsSettingsSelected)
+            {                
+                nextPage = new SettingsPage();
+            }
+            if ((navigationView.Content as Page) != nextPage)
+            {
+                navigationView.Content = nextPage;
+                if (nextPage == playerPage)
+                {
+                    await playerPage.PlayAsync();
+                }
+            }
         }
     }
 }

@@ -1,0 +1,42 @@
+﻿<Page
+    x:Class="RadioParadisePlayer.PlayerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RadioParadisePlayer"
+    xmlns:localHelpers="using:RadioParadisePlayer.Helpers"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <localHelpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterKey" />
+    </Page.Resources>
+
+    <Grid RowDefinitions="*,Auto">
+        <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2">
+            <Image.OpacityTransition>
+                <ScalarTransition Duration="00:00:02" />
+            </Image.OpacityTransition>
+        </Image>
+        <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" Grid.RowSpan="2">
+            <Image.OpacityTransition>
+                <ScalarTransition Duration="00:00:02" />
+            </Image.OpacityTransition>
+        </Image>
+        <ProgressRing x:Name="progressRing" Grid.RowSpan="2"                      
+                      IsActive="{x:Bind player.IsLoading, Mode=OneWay}" />
+        <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{x:Bind player.IsPlaying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }"
+                    Padding="16, 16, 16, 16" >
+            <StackPanel.Background>
+                <SolidColorBrush Color="Black" Opacity="0.6" />
+            </StackPanel.Background>
+            <Grid ColumnDefinitions="128,*" Grid.RowDefinitions="*,*,*" ColumnSpacing="16">
+                <Image x:Name="imgCoverArt" Stretch="UniformToFill" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Source="{x:Bind BitmapImageCoverArt}" />
+                <TextBlock Text="{x:Bind player.CurrentSong.Title, Mode=OneWay}" Grid.Column="1" Grid.Row="0" FontSize="24" Foreground="White" />
+                <TextBlock Text="{x:Bind player.CurrentSong.Artist, Mode=OneWay}" Grid.Column="1" Grid.Row="1" FontSize="18" Foreground="White" />
+                <TextBlock Text="{x:Bind player.CurrentSong.Album, Mode=OneWay}" Grid.Column="1" Grid.Row="2" FontSize="18" Foreground="White" />
+            </Grid>
+        </StackPanel>
+    </Grid>
+</Page>

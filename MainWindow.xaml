@@ -3,6 +3,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:RadioParadisePlayer"
+    xmlns:localHelpers="using:RadioParadisePlayer.Helpers"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -10,29 +11,9 @@
     <NavigationView x:Name="navigationView" IsSettingsVisible="True" PaneDisplayMode="LeftCompact"
                     SelectionChanged="navigationView_SelectionChanged">
         <NavigationView.MenuItems>
-            <NavigationViewItem Icon="Play" Content="Play" />
+            <NavigationViewItem x:Name="nviPlay" Icon="Play" Content="Play" Tag="Play" />
+            <NavigationViewItem x:Name="nviStop" Icon="Stop" Content="Stop" Tag="Stop" />
         </NavigationView.MenuItems>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="*" />
-                <RowDefinition Height="80" />
-            </Grid.RowDefinitions>
-            <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2">
-                <Image.OpacityTransition>
-                    <ScalarTransition Duration="00:00:02" />
-                </Image.OpacityTransition>
-            </Image>
-            <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" Grid.RowSpan="2">
-                <Image.OpacityTransition>
-                    <ScalarTransition Duration="00:00:02" />
-                </Image.OpacityTransition>
-            </Image>
-            <ProgressRing x:Name="progressRing" IsActive="false" Visibility="Collapsed" Grid.RowSpan="2"/>
-            <StackPanel Grid.Row="1" Orientation="Vertical">
-                <TextBlock x:Name="tbDummy" Text="Hi there" FontSize="24" />
-                <TextBlock x:Name="labelSongName" Text="{x:Bind player.CurrentSong.Title, Mode=OneWay}" FontSize="24" />
-                <TextBlock x:Name="labelArtistName" Text="{x:Bind player.CurrentSong.Artist, Mode=OneWay}" />
-            </StackPanel>
-        </Grid>
+        
     </NavigationView>
 </Window>

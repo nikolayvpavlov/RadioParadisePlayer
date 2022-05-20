@@ -13,6 +13,8 @@ namespace RadioParadisePlayer.Player
 {
     internal class Player : INotifyPropertyChanged
     {
+        private const int PlayerTimerGranularity = 250;
+
         private static User user = null;
         private Playlist currentPlaylist;
         private DispatcherQueue dispatcherQueue;
@@ -37,6 +39,21 @@ namespace RadioParadisePlayer.Player
             }
         }
 
+        private bool isPlaying;
+
+        public bool IsPlaying
+        {
+            get { return isPlaying; }
+            set
+            {
+                if (isPlaying != value)
+                {
+                    isPlaying = value;
+                    OnPropertyChanged(nameof(IsPlaying));
+                }
+            }
+        }
+
         private string currentSlideshowPictureUrl;
 
         public string CurrentSlideshowPictureUrl
@@ -54,6 +71,8 @@ namespace RadioParadisePlayer.Player
 
         private int currentSongIndex;
         private Song currentSong;
+
+        public string CurrentSongCoverArtPictureUrl => currentPlaylist?.Image_Base + currentSong.Cover_Art;
 
         public Song CurrentSong
         {
@@ -93,9 +112,9 @@ namespace RadioParadisePlayer.Player
         private void MoveNextSong()
         {
             currentSongIndex++;
-
             CurrentSong = currentPlaylist.Songs[currentSongIndex];
             CurrentSongProgress = CurrentSong.Cue;
+            IsPlaying = true;
 
             //Reset the slideShow;
             slideshowTimer.Stop();
@@ -107,7 +126,7 @@ namespace RadioParadisePlayer.Player
             slideshowTimer.Start();
         }
 
-        private async Task LoadPlaylist ()
+        private async Task LoadPlaylist()
         {
             currentPlaylist = await RpApiClient.GetPlaylistAsync(user.User_Id, "0", "3");
             currentSongIndex = -1;
@@ -127,8 +146,8 @@ namespace RadioParadisePlayer.Player
                 {
                     dispatcherQueue.TryEnqueue(MoveNextSong);
                 }
-                dispatcherQueue.TryEnqueue(() => CurrentSongProgress += 500);
-                await Task.Delay(500, cancellation);
+                dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
+                await Task.Delay(PlayerTimerGranularity);                
             }
         }
 
@@ -163,6 +182,12 @@ namespace RadioParadisePlayer.Player
             MoveNextSong();
             playerTask = Task.Run(async () => await PlayerWoker(ctsPlayer.Token));
             IsLoading = false;
+        }
+
+        public async Task StopAsync()
+        {
+            ctsPlayer?.Cancel();
+            await playerTask;
         }
     }
 }
