@@ -7,7 +7,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using RadioParadisePlayer.Helpers;
-using RadioParadisePlayer.Player;
+using RadioParadisePlayer.Logic;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,45 +25,68 @@ namespace RadioParadisePlayer
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        Logic.Player player = null;
+        Logic.Player Player
+        {
+            get
+            {
+                if (player is null) player = new Logic.Player();
+                return player;
+            }
+        }
+
+        SettingsViewModel vmSettings;
+        SettingsViewModel SettingsViewModel
+        {
+            get
+            {
+                if (vmSettings is null)
+                {
+                    vmSettings = new SettingsViewModel(Player);
+                }
+                return vmSettings;
+            }
+        }
+
         PlayerPage playerPage;
 
         public MainWindow()
         {
             this.InitializeComponent();
+            ExtendsContentIntoTitleBar = true;
+        }
 
-            ExtendsContentIntoTitleBar = true;            
+        private void NavigateToPage (Page nextPage)
+        {
+            if ((navigationView.Content as Page) != nextPage && nextPage != null)
+            {
+                navigationView.Content = nextPage;
+            }
         }
 
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            Page nextPage = null;
             switch (args.SelectedItemContainer.Name)
             {
                 case "nviPlay":
                     if (playerPage is null)
                     {
-                        playerPage = new PlayerPage();
+                        playerPage = new PlayerPage(Player);
                     }
-                    nextPage = playerPage;
+                    NavigateToPage(playerPage);
+                    if (!player.IsPlaying) await player.PlayAsync();
                     break;
                 case "nviStop":
                     if (playerPage != null)
                     {
+                        navigationView.Content = null;
                         await playerPage.StopAsync();
                     }
                     break;
             }
             if (args.IsSettingsSelected)
-            {                
-                nextPage = new SettingsPage();
-            }
-            if ((navigationView.Content as Page) != nextPage)
             {
-                navigationView.Content = nextPage;
-                if (nextPage == playerPage)
-                {
-                    await playerPage.PlayAsync();
-                }
+                NavigateToPage (new SettingsPage(SettingsViewModel));
             }
         }
     }

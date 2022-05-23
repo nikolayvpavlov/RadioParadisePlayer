@@ -13,6 +13,7 @@ namespace RadioParadisePlayer.Api
     {
         const string urlPlaylist = @"https://api.radioparadise.com/api/gapless?C_user_id={0}&player_id={1}&chan={2}&bitrate={3}&source={4}";
         const string urlAuth = @"https://api.radioparadise.com/api/auth";
+        const string urlChannels = @"https://api.radioparadise.com/api/list_chan?C_user_id={0}";
 
         const string PlayerId = "{2015FABE-E98E-4071-8232-57494B06D73B}";
         const int SourceId = 30; //Constant provided by Jarred (RP)
@@ -55,6 +56,18 @@ namespace RadioParadisePlayer.Api
             await stream.CopyToAsync (result);
             result.Position = 0;
             return result;
+        }
+
+        public static async Task<IReadOnlyList<Channel>> GetChannelsAsync(string userId)
+        {
+            var url = String.Format(urlChannels, userId);
+            var response = await httpClient.GetAsync(url);
+            if (response.IsSuccessStatusCode)
+            {
+                string responseContent = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<List<Channel>>(responseContent, jsonOptions);
+            }
+            else return null;
         }
     }
 }

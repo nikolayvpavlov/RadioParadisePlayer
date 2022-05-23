@@ -24,16 +24,16 @@ namespace RadioParadisePlayer
     /// <summary>
     /// An empty page that can be used on its own or navigated to within a Frame.
     /// </summary>
-    public sealed partial class PlayerPage : Page
+    internal sealed partial class PlayerPage : Page
     {
-        Player.Player player;
+        Logic.Player player;
 
         Microsoft.UI.Media.Playback.MediaPlayer mPlayer;
         BitmapImage BitmapImageSlideshowOne { get; set; }
         BitmapImage BitmapImageSlideshowTwo { get; set; }
         BitmapImage BitmapImageCoverArt { get; set; }
 
-        public PlayerPage()
+        public PlayerPage(Logic.Player player)
         {
             this.InitializeComponent();
 
@@ -41,33 +41,12 @@ namespace RadioParadisePlayer
             BitmapImageSlideshowTwo = new BitmapImage();
             BitmapImageCoverArt = new BitmapImage();
 
-            player = new Player.Player();
+            this.player = player;
             player.PropertyChanged += Player_PropertyChanged;
 
             mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
+            mPlayer.Volume = 0.4;
             mPlayer.MediaFailed += MPlayer_MediaFailed;
-
-            //FinalizeInitialization();
-        }
-
-        void FinalizeInitialization()
-        {
-            Binding prgRingBinding = new Binding()
-            {
-                Source = player,
-                Path = new PropertyPath("IsLoading"),
-                Mode = BindingMode.OneWay
-            };
-            progressRing.SetBinding(ProgressRing.IsActiveProperty, prgRingBinding);
-
-            Binding prgRingVisibilityBinding = new Binding()
-            {
-                Source = player,
-                Path = new PropertyPath("IsLoading"),
-                Converter = new BoolToVisibilityConverter(),
-                Mode=BindingMode.OneWay
-            };
-            progressRing.SetBinding(ProgressRing.VisibilityProperty, prgRingVisibilityBinding);
         }
 
         public async Task PlayAsync()
@@ -80,6 +59,8 @@ namespace RadioParadisePlayer
             mPlayer.Pause();
             await player.StopAsync();
         }
+
+        public bool IsPlaying => player.IsPlaying;
 
         private async void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -118,7 +99,8 @@ namespace RadioParadisePlayer
 
         private async Task LoadCoverArtAsync()
         {
-            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + player.CurrentSongCoverArtPictureUrl);
+            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + player.CurrentSongCoverArtPictureUrl);            
+            //TO DO: handle changes while this is still running; can happen.
             await BitmapImageCoverArt.SetSourceAsync(stream.AsRandomAccessStream());
         }
 

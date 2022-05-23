@@ -9,6 +9,26 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <TextBlock Text="Hi there!" />
+        <StackPanel Orientation="Vertical">
+            <StackPanel Orientation="Vertical" Padding="8, 8, 32, 8" HorizontalAlignment="Left">
+                <TextBlock Text="Bit Rates"  Style="{ThemeResource SubheaderTextBlockStyle}"/>
+                <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged">
+                    <x:String>32 Kbps (worst quality, least data traffic)</x:String>
+                    <x:String>64 Kbps</x:String>
+                    <x:String>128 Kbps</x:String>
+                    <x:String>320 Kbps</x:String>
+                    <x:String>Looseless (best quality, higest data traffic)</x:String>
+                </RadioButtons>
+            </StackPanel>
+            <StackPanel Orientation="Vertical" Padding="8, 8, 32, 8" HorizontalAlignment="Left">
+                <TextBlock Text="Channel"  Style="{ThemeResource SubheaderTextBlockStyle}"/>
+                <Grid>
+                    <ProgressRing x:Name="progressRingChannel" IsActive="{x:Bind vmSettings.IsLoading, Mode=OneWay}" />
+                    <RadioButtons x:Name="rbChannel" SelectionChanged="rbChannel_SelectionChanged"
+                                  ItemsSource="{x:Bind vmSettings.ChannelsList, Mode=OneWay}" />
+                    <!--SelectedIndex="{x:Bind vmSettings.SelectedChannelIndex, Mode=TwoWay}"/>-->
+                </Grid>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Page>

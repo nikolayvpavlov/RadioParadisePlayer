@@ -11,5 +11,6 @@ namespace RadioParadisePlayer.Api
         public string Chan { get; set; }
         public string Title { get; set; }
         public string Stream_Name { get; set; }
+        public string Image { get; set; }
     }
 }

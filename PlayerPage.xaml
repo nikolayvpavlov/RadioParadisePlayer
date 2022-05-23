@@ -11,6 +11,7 @@
 
     <Page.Resources>
         <localHelpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterKey" />
+        <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0.1" TintColor="#FF000000" FallbackColor="#FF000000" />
     </Page.Resources>
 
     <Grid RowDefinitions="*,Auto">
@@ -27,11 +28,11 @@
         <ProgressRing x:Name="progressRing" Grid.RowSpan="2"                      
                       IsActive="{x:Bind player.IsLoading, Mode=OneWay}" />
         <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{x:Bind player.IsPlaying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }"
-                    Padding="16, 16, 16, 16" >
+                    Padding="16, 16, 16, 16">
             <StackPanel.Background>
-                <SolidColorBrush Color="Black" Opacity="0.6" />
+                <SolidColorBrush Color="Black" Opacity="0.45" />
             </StackPanel.Background>
-            <Grid ColumnDefinitions="128,*" Grid.RowDefinitions="*,*,*" ColumnSpacing="16">
+            <Grid ColumnDefinitions="192,*" Grid.RowDefinitions="32,24,*" ColumnSpacing="16" Height="160">
                 <Image x:Name="imgCoverArt" Stretch="UniformToFill" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Source="{x:Bind BitmapImageCoverArt}" />
                 <TextBlock Text="{x:Bind player.CurrentSong.Title, Mode=OneWay}" Grid.Column="1" Grid.Row="0" FontSize="24" Foreground="White" />
                 <TextBlock Text="{x:Bind player.CurrentSong.Artist, Mode=OneWay}" Grid.Column="1" Grid.Row="1" FontSize="18" Foreground="White" />

@@ -9,13 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
 
-namespace RadioParadisePlayer.Player
+namespace RadioParadisePlayer.Logic
 {
     internal class Player : INotifyPropertyChanged
     {
         private const int PlayerTimerGranularity = 250;
 
-        private static User user = null;
         private Playlist currentPlaylist;
         private DispatcherQueue dispatcherQueue;
         private Task playerTask;
@@ -23,6 +22,8 @@ namespace RadioParadisePlayer.Player
         private System.Timers.Timer slideshowTimer;
         private SongSlideshow currentSongSlideshow;
         private object lockSlideshow = new object();
+
+        internal static User User { get; private set; } = null;
 
         private bool isLoading;
 
@@ -102,6 +103,9 @@ namespace RadioParadisePlayer.Player
             }
         }
 
+        public int BitRate { get; private set; }
+        public string Channel { get; private set; }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected virtual void OnPropertyChanged(string propertyName)
@@ -109,13 +113,12 @@ namespace RadioParadisePlayer.Player
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        private void MoveNextSong()
+        private void MoveToNextSong()
         {
             currentSongIndex++;
+            if (currentSongIndex >= currentPlaylist.Songs.Count) return;
             CurrentSong = currentPlaylist.Songs[currentSongIndex];
-            CurrentSongProgress = CurrentSong.Cue;
-            IsPlaying = true;
-
+            CurrentSongProgress = CurrentSong.Cue;            
             //Reset the slideShow;
             slideshowTimer.Stop();
             lock (lockSlideshow)
@@ -128,7 +131,7 @@ namespace RadioParadisePlayer.Player
 
         private async Task LoadPlaylist()
         {
-            currentPlaylist = await RpApiClient.GetPlaylistAsync(user.User_Id, "0", "3");
+            currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString());
             currentSongIndex = -1;
         }
 
@@ -136,15 +139,14 @@ namespace RadioParadisePlayer.Player
         {
             while (!cancellation.IsCancellationRequested)
             {
-                if (currentSongProgress >= currentSong.Duration &&
-                    currentSongIndex >= currentPlaylist.Songs.Count)
+                if (CurrentSongProgress >= currentSong.Duration)
+                {
+                    dispatcherQueue.TryEnqueue(MoveToNextSong);
+                }
+                if (currentSongIndex >= currentPlaylist.Songs.Count)
                 {
                     await LoadPlaylist();
-                    dispatcherQueue.TryEnqueue(MoveNextSong);
-                }
-                else if (currentSongProgress >= currentSong.Duration)
-                {
-                    dispatcherQueue.TryEnqueue(MoveNextSong);
+                    dispatcherQueue.TryEnqueue(MoveToNextSong);
                 }
                 dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
                 await Task.Delay(PlayerTimerGranularity);                
@@ -168,26 +170,48 @@ namespace RadioParadisePlayer.Player
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             slideshowTimer = new System.Timers.Timer(10_000); //10 secs following Jarred (RP)
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
+            BitRate = 3;
+            Channel = "0";
         }
 
         public async Task PlayAsync()
         {
             IsLoading = true;
-            if (user is null)
+            if (User is null)
             {
-                user = await RpApiClient.AuthenticateAsync();
+                User = await RpApiClient.AuthenticateAsync();
             }
             ctsPlayer = new CancellationTokenSource();
             await LoadPlaylist();
-            MoveNextSong();
+            MoveToNextSong();
             playerTask = Task.Run(async () => await PlayerWoker(ctsPlayer.Token));
             IsLoading = false;
+            IsPlaying = true;
         }
 
         public async Task StopAsync()
         {
             ctsPlayer?.Cancel();
             await playerTask;
+            IsPlaying = false;
         }
+
+        public async Task SetBitRate(int bitRate)
+        {
+            if (bitRate < 0 && bitRate > 4)
+            {
+                throw new ArgumentOutOfRangeException("BitRate must be between 0 and 4");
+            }
+            await StopAsync();
+            await PlayAsync();
+        }
+
+        public async Task SetChannel(string channel)
+        {            
+            Channel = channel;
+            await StopAsync();
+            await PlayAsync();
+        }
+
     }
 }
