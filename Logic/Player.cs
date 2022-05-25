@@ -191,6 +191,7 @@ namespace RadioParadisePlayer.Logic
 
         public async Task StopAsync()
         {
+            if (!IsPlaying) return;
             ctsPlayer?.Cancel();
             await playerTask;
             IsPlaying = false;

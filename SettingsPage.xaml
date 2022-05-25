@@ -8,27 +8,43 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <StackPanel Orientation="Vertical">
-            <StackPanel Orientation="Vertical" Padding="8, 8, 32, 8" HorizontalAlignment="Left">
-                <TextBlock Text="Bit Rates"  Style="{ThemeResource SubheaderTextBlockStyle}"/>
-                <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged">
-                    <x:String>32 Kbps (worst quality, least data traffic)</x:String>
-                    <x:String>64 Kbps</x:String>
-                    <x:String>128 Kbps</x:String>
-                    <x:String>320 Kbps</x:String>
-                    <x:String>Looseless (best quality, higest data traffic)</x:String>
-                </RadioButtons>
-            </StackPanel>
-            <StackPanel Orientation="Vertical" Padding="8, 8, 32, 8" HorizontalAlignment="Left">
-                <TextBlock Text="Channel"  Style="{ThemeResource SubheaderTextBlockStyle}"/>
-                <Grid>
-                    <ProgressRing x:Name="progressRingChannel" IsActive="{x:Bind vmSettings.IsLoading, Mode=OneWay}" />
-                    <RadioButtons x:Name="rbChannel" SelectionChanged="rbChannel_SelectionChanged"
+    <Grid ColumnDefinitions="*,380" Padding="32,32,32,32" HorizontalAlignment="Stretch">
+        <StackPanel Orientation="Vertical" Grid.Column="0" HorizontalAlignment="Stretch">
+            <TextBlock Text="Settings" Padding="8, 8, 32, 8" Style="{ThemeResource TitleTextBlockStyle}" />
+            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE93E;" Margin="0,0,16,0"/>
+                        <TextBlock Text="Stream quality" />
+                    </StackPanel>
+                </Expander.Header>
+                <Expander.Content>
+                    <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged">
+                        <x:String>Lowest (least data traffic)</x:String>
+                        <x:String>Low</x:String>
+                        <x:String>Good</x:String>
+                        <x:String>High</x:String>
+                        <x:String>Best (highest data traffic)</x:String>
+                    </RadioButtons>
+                </Expander.Content>
+            </Expander>
+
+            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                <Expander.Header>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xEC4F;" Margin="0,0,16,0"/>
+                        <TextBlock Text="Channel" />
+                    </StackPanel>
+                </Expander.Header>
+                <Expander.Content>
+                    <Grid>
+                        <ProgressRing x:Name="progressRingChannel" IsActive="{x:Bind vmSettings.IsLoading, Mode=OneWay}" />
+                        <RadioButtons x:Name="rbChannel" SelectionChanged="rbChannel_SelectionChanged"
                                   ItemsSource="{x:Bind vmSettings.ChannelsList, Mode=OneWay}" />
-                    <!--SelectedIndex="{x:Bind vmSettings.SelectedChannelIndex, Mode=TwoWay}"/>-->
-                </Grid>
-            </StackPanel>
+                        <!--SelectedIndex="{x:Bind vmSettings.SelectedChannel, Mode=TwoWay}"/>-->
+                    </Grid>
+                </Expander.Content>
+            </Expander>
         </StackPanel>
     </Grid>
 </Page>

@@ -35,14 +35,15 @@ namespace RadioParadisePlayer
 
         private async void SettingsPage_Loaded(object sender, RoutedEventArgs e)
         {
-            await vmSettings.Initialize();
-
             //Fixes an issue in WinUI 3: https://github.com/microsoft/microsoft-ui-xaml/issues/6335
+            rbBitRate.UpdateLayout();
+            rbBitRate.SelectedIndex = vmSettings.SelectedBitRate;
+            
+            await vmSettings.Initialize();
+            
             rbChannel.UpdateLayout();
             //TO DO: Implement in a better way with proper error handling
             rbChannel.SelectedIndex = Int32.Parse(vmSettings.SelectedChannel ?? "0");
-
-            rbBitRate.SelectedIndex = vmSettings.SelectedBitRate;
         }
 
         private void rbBitRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
