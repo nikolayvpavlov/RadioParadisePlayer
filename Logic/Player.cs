@@ -203,15 +203,21 @@ namespace RadioParadisePlayer.Logic
             {
                 throw new ArgumentOutOfRangeException("BitRate must be between 0 and 4");
             }
-            await StopAsync();
-            await PlayAsync();
+            if (IsPlaying)
+            {
+                await StopAsync();
+                await PlayAsync();
+            }
         }
 
         public async Task SetChannel(string channel)
         {            
             Channel = channel;
-            await StopAsync();
-            await PlayAsync();
+            if (IsPlaying)
+            {
+                await StopAsync();
+                await PlayAsync();
+            }
         }
 
     }

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -33,6 +34,10 @@ namespace RadioParadisePlayer
         BitmapImage BitmapImageSlideshowTwo { get; set; }
         BitmapImage BitmapImageCoverArt { get; set; }
 
+        SemaphoreSlim semaphoreCoverArtImage;
+        SemaphoreSlim semaphoreCoverSlideshowOne;
+        SemaphoreSlim semaphoreCoverSlideshowTwo;
+
         public PlayerPage(Logic.Player player)
         {
             this.InitializeComponent();
@@ -40,6 +45,12 @@ namespace RadioParadisePlayer
             BitmapImageSlideshowOne = new BitmapImage();
             BitmapImageSlideshowTwo = new BitmapImage();
             BitmapImageCoverArt = new BitmapImage();
+            BitmapImageSlideshowOne.ImageOpened += BitmapImageSlideshowOne_ImageOpened;
+            BitmapImageSlideshowTwo.ImageOpened += BitmapImageSlideshowTwo_ImageOpened;
+            BitmapImageCoverArt.ImageOpened += BitmapImageCoverArt_ImageOpened;
+            semaphoreCoverArtImage = new SemaphoreSlim(1);
+            semaphoreCoverSlideshowOne = new SemaphoreSlim(1);
+            semaphoreCoverSlideshowTwo = new SemaphoreSlim(1);
 
             this.player = player;
             player.PropertyChanged += Player_PropertyChanged;
@@ -47,6 +58,21 @@ namespace RadioParadisePlayer
             mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
             mPlayer.Volume = 0.4;
             mPlayer.MediaFailed += MPlayer_MediaFailed;
+        }
+
+        private void BitmapImageSlideshowTwo_ImageOpened(object sender, RoutedEventArgs e)
+        {
+            semaphoreCoverSlideshowTwo.Release();
+        }
+
+        private void BitmapImageSlideshowOne_ImageOpened(object sender, RoutedEventArgs e)
+        {
+            semaphoreCoverSlideshowOne.Release();
+        }
+
+        private void BitmapImageCoverArt_ImageOpened(object sender, RoutedEventArgs e)
+        {
+            semaphoreCoverArtImage.Release();
         }
 
         public async Task PlayAsync()
@@ -70,12 +96,14 @@ namespace RadioParadisePlayer
                     var stream = await Api.RpApiClient.DownloadImageAsync(player.CurrentSlideshowPictureUrl);
                     if (imgSlideshowOne.Opacity == 0)
                     {
+                        await semaphoreCoverSlideshowOne.WaitAsync();
                         await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
                         imgSlideshowOne.Opacity = 1;
                         imgSlideshowTwo.Opacity = 0;
                     }
                     else
                     {
+                        await semaphoreCoverSlideshowTwo.WaitAsync();
                         await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
                         imgSlideshowOne.Opacity = 0;
                         imgSlideshowTwo.Opacity = 1;
@@ -84,6 +112,7 @@ namespace RadioParadisePlayer
 
                 case "CurrentSong":
                     Playsong();
+                    await semaphoreCoverArtImage.WaitAsync();
                     await LoadCoverArtAsync();
                     break;
             }
@@ -99,7 +128,7 @@ namespace RadioParadisePlayer
 
         private async Task LoadCoverArtAsync()
         {
-            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + player.CurrentSongCoverArtPictureUrl);            
+            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + player.CurrentSongCoverArtPictureUrl);
             //TO DO: handle changes while this is still running; can happen.
             await BitmapImageCoverArt.SetSourceAsync(stream.AsRandomAccessStream());
         }

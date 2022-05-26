@@ -5,8 +5,13 @@
     xmlns:local="using:RadioParadisePlayer"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:localHelpers="using:RadioParadisePlayer.Helpers"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <localHelpers:InvertedBoolConverter x:Key="InvertedBoolConverterKey" />
+    </Page.Resources>
 
     <Grid ColumnDefinitions="*,380" Padding="32,32,32,32" HorizontalAlignment="Stretch">
         <StackPanel Orientation="Vertical" Grid.Column="0" HorizontalAlignment="Stretch">
@@ -19,13 +24,19 @@
                     </StackPanel>
                 </Expander.Header>
                 <Expander.Content>
-                    <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged">
-                        <x:String>Lowest (least data traffic)</x:String>
-                        <x:String>Low</x:String>
-                        <x:String>Good</x:String>
-                        <x:String>High</x:String>
-                        <x:String>Best (highest data traffic)</x:String>
-                    </RadioButtons>
+                    <Grid HorizontalAlignment="Stretch">
+                        <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged"
+                                  IsEnabled="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolConverterKey}}">
+                            <x:String>Lowest (least data traffic)</x:String>
+                            <x:String>Low</x:String>
+                            <x:String>Good</x:String>
+                            <x:String>High</x:String>
+                            <x:String>Best (highest data traffic)</x:String>
+                        </RadioButtons>
+                        <ProgressRing x:Name="progressRingChangingBitRate" 
+                                      IsActive="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay}" 
+                                      HorizontalAlignment="Center"/>
+                    </Grid>
                 </Expander.Content>
             </Expander>
 
@@ -37,11 +48,15 @@
                     </StackPanel>
                 </Expander.Header>
                 <Expander.Content>
-                    <Grid>
+                    <Grid HorizontalAlignment="Stretch">
                         <ProgressRing x:Name="progressRingChannel" IsActive="{x:Bind vmSettings.IsLoading, Mode=OneWay}" />
                         <RadioButtons x:Name="rbChannel" SelectionChanged="rbChannel_SelectionChanged"
-                                  ItemsSource="{x:Bind vmSettings.ChannelsList, Mode=OneWay}" />
+                                  ItemsSource="{x:Bind vmSettings.ChannelsList, Mode=OneWay}" 
+                                  IsEnabled="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolConverterKey}}"/>
                         <!--SelectedIndex="{x:Bind vmSettings.SelectedChannel, Mode=TwoWay}"/>-->
+                        <ProgressRing x:Name="progressRingChangingChannel" 
+                                      IsActive="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay}" 
+                                      HorizontalAlignment="Center" />
                     </Grid>
                 </Expander.Content>
             </Expander>

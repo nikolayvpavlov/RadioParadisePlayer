@@ -83,7 +83,7 @@ namespace RadioParadisePlayer.Logic
 
         private async Task LoadChannels()
         {
-            if (ChannelsList.Count > 0) return; //No need to reload channels all the time. One is just enough.
+            if (ChannelsList.Count > 0) return; //No need to reload channels all the time. Once is just enough.
             var channels = await RpApiClient.GetChannelsAsync(Logic.Player.User?.User_Id);
             foreach (var c in channels)
             {
