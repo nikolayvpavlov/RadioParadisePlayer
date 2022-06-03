@@ -129,7 +129,6 @@ namespace RadioParadisePlayer
         private async Task LoadCoverArtAsync()
         {
             var stream = await Api.RpApiClient.DownloadImageAsync("https:" + player.CurrentSongCoverArtPictureUrl);
-            //TO DO: handle changes while this is still running; can happen.
             await BitmapImageCoverArt.SetSourceAsync(stream.AsRandomAccessStream());
         }
 

@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <NavigationView x:Name="navigationView" IsSettingsVisible="True" PaneDisplayMode="LeftCompact"
+    <NavigationView x:Name="navigationView" IsSettingsVisible="True" PaneDisplayMode="LeftCompact" IsBackButtonVisible="Collapsed"
                     SelectionChanged="navigationView_SelectionChanged">
         <NavigationView.MenuItems>
             <NavigationViewItem x:Name="nviPlay" Icon="Play" Content="Play" Tag="Play" />

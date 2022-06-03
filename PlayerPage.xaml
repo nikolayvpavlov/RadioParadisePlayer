@@ -11,7 +11,16 @@
 
     <Page.Resources>
         <localHelpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterKey" />
-        <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0.1" TintColor="#FF000000" FallbackColor="#FF000000" />
+        <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0" TintColor="#FF000000" FallbackColor="#FF000000" />
+        <Style x:Key="ImgButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Page.Resources>
 
     <Grid RowDefinitions="*,Auto">
@@ -28,12 +37,24 @@
         <ProgressRing x:Name="progressRing" Grid.RowSpan="2"                      
                       IsActive="{x:Bind player.IsLoading, Mode=OneWay}" />
         <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{x:Bind player.IsPlaying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }"
-                    Padding="16, 16, 16, 16">
-            <StackPanel.Background>
-                <SolidColorBrush Color="Black" Opacity="0.45" />
-            </StackPanel.Background>
-            <Grid ColumnDefinitions="192,*" Grid.RowDefinitions="32,24,*" ColumnSpacing="16" Height="160">
-                <Image x:Name="imgCoverArt" Stretch="UniformToFill" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Source="{x:Bind BitmapImageCoverArt}" />
+                    Padding="16, 16, 16, 16" Background="{ThemeResource CustomAcrylicBrush}">
+            <Grid ColumnDefinitions="96,*,24" Grid.RowDefinitions="32,24,*" ColumnSpacing="16" Height="96">
+                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Style="{StaticResource ImgButtonStyle}">
+                    <Button.Content>
+                        <Image x:Name="imgCoverArt" Stretch="UniformToFill" Source="{x:Bind BitmapImageCoverArt}" />
+                    </Button.Content>
+                    <Button.Flyout>
+                        <Flyout>
+                            <Flyout.FlyoutPresenterStyle>
+                                <Style TargetType="FlyoutPresenter">
+                                    <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+                                    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                                </Style>
+                            </Flyout.FlyoutPresenterStyle>
+                            <Image x:Name="imgCoverArtBig" Stretch="UniformToFill" Source="{x:Bind BitmapImageCoverArt}" />
+                        </Flyout>
+                    </Button.Flyout>
+                </Button>
                 <TextBlock Text="{x:Bind player.CurrentSong.Title, Mode=OneWay}" Grid.Column="1" Grid.Row="0" FontSize="24" Foreground="White" />
                 <TextBlock Text="{x:Bind player.CurrentSong.Artist, Mode=OneWay}" Grid.Column="1" Grid.Row="1" FontSize="18" Foreground="White" />
                 <TextBlock Text="{x:Bind player.CurrentSong.Album, Mode=OneWay}" Grid.Column="1" Grid.Row="2" FontSize="18" Foreground="White" />
