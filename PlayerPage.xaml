@@ -12,7 +12,7 @@
     <Page.Resources>
         <localHelpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterKey" />
         <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0" TintColor="#FF000000" FallbackColor="#FF000000" />
-        <Style x:Key="ImgButtonStyle" TargetType="Button">
+        <Style x:Key="NakedButtonStyle" TargetType="Button">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -24,12 +24,14 @@
     </Page.Resources>
 
     <Grid RowDefinitions="*,Auto">
-        <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2">
+        <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2" 
+               Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>
                 <ScalarTransition Duration="00:00:02" />
             </Image.OpacityTransition>
         </Image>
-        <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" Grid.RowSpan="2">
+        <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" Grid.RowSpan="2"
+               Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>
                 <ScalarTransition Duration="00:00:02" />
             </Image.OpacityTransition>
@@ -37,9 +39,26 @@
         <ProgressRing x:Name="progressRing" Grid.RowSpan="2"                      
                       IsActive="{x:Bind player.IsLoading, Mode=OneWay}" />
         <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{x:Bind player.IsPlaying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }"
-                    Padding="16, 16, 16, 16" Background="{ThemeResource CustomAcrylicBrush}">
-            <Grid ColumnDefinitions="96,*,24" Grid.RowDefinitions="32,24,*" ColumnSpacing="16" Height="96">
-                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Style="{StaticResource ImgButtonStyle}">
+                    Padding="12, 12, 12, 12" Background="{ThemeResource CustomAcrylicBrush}" x:Name="spPlayerInfo">
+            <Grid ColumnDefinitions="*,24" Height="24" HorizontalAlignment="Stretch" ColumnSpacing="16">
+                <ProgressBar HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="0" Foreground="White" 
+                             Value="{x:Bind player.CurrentSongProgress, Mode=OneWay}" 
+                             Maximum="{x:Bind player.CurrentSong.Duration, Mode=OneWay}" />
+                <ToggleButton Grid.Column="1" HorizontalAlignment="Right" Height="24" Width="24"
+                        RequestedTheme="Dark"
+                        BorderThickness="0" BorderBrush="Transparent" Padding="4,4,4,4"
+                        Foreground="White" Background="Transparent"
+                        Click="ToggleButton_Click">
+                    <ToggleButton.Content>
+                        <FontIcon Glyph="&#xE718;" FontSize="11" />
+                    </ToggleButton.Content>
+                </ToggleButton>
+            </Grid>
+            <Grid x:Name="gridInfo" ColumnDefinitions="96,*" Grid.RowDefinitions="32,24,*" ColumnSpacing="16" Height="96">
+                <Grid.Transitions>
+                    <EdgeUIThemeTransition Edge="Bottom" />
+                </Grid.Transitions>
+                <Button Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Style="{StaticResource NakedButtonStyle}" >
                     <Button.Content>
                         <Image x:Name="imgCoverArt" Stretch="UniformToFill" Source="{x:Bind BitmapImageCoverArt}" />
                     </Button.Content>

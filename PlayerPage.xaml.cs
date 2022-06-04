@@ -136,5 +136,17 @@ namespace RadioParadisePlayer
         {
             string s = args.ErrorMessage;
         }
+
+        private void ToggleButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (spPlayerInfo.Children.Contains(gridInfo))
+            {
+                spPlayerInfo.Children.Remove(gridInfo);
+            }
+            else
+            {
+                spPlayerInfo.Children.Add(gridInfo);
+            }
+        }
     }
 }

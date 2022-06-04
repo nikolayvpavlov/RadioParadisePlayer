@@ -89,5 +89,10 @@ namespace RadioParadisePlayer
                 NavigateToPage (new SettingsPage(SettingsViewModel));
             }
         }
+
+        private async void Window_Closed(object sender, WindowEventArgs args)
+        {
+            await player?.StopAsync();
+        }
     }
 }

@@ -70,6 +70,22 @@ namespace RadioParadisePlayer.Logic
             }
         }
 
+        private bool slideshowEnabled = true;
+
+        public bool SlideshowEnabled
+        {
+            get { return slideshowEnabled; }
+            set
+            {
+                if (slideshowEnabled != value)
+                {
+                    slideshowEnabled = value;
+                    OnPropertyChanged(nameof(SlideshowEnabled));
+                    if (isPlaying) slideshowTimer.Enabled = slideshowEnabled;
+                }
+            }
+        }
+
         private int currentSongIndex;
         private Song currentSong;
 
@@ -126,7 +142,7 @@ namespace RadioParadisePlayer.Logic
                 currentSongSlideshow = new SongSlideshow(currentPlaylist, CurrentSong);
                 CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
             }
-            slideshowTimer.Start();
+            slideshowTimer.Enabled = SlideshowEnabled;
         }
 
         private async Task LoadPlaylist()
@@ -139,7 +155,7 @@ namespace RadioParadisePlayer.Logic
         {
             while (!cancellation.IsCancellationRequested)
             {
-                if (CurrentSongProgress >= currentSong.Duration)
+                if (CurrentSongProgress >= CurrentSong.Duration)
                 {
                     dispatcherQueue.TryEnqueue(MoveToNextSong);
                 }
@@ -192,6 +208,7 @@ namespace RadioParadisePlayer.Logic
         public async Task StopAsync()
         {
             if (!IsPlaying) return;
+            slideshowTimer.Stop();
             ctsPlayer?.Cancel();
             await playerTask;
             IsPlaying = false;
