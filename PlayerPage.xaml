@@ -11,6 +11,7 @@
 
     <Page.Resources>
         <localHelpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterKey" />
+        <localHelpers:NotBoolToVisibilityConverter x:Key="NotBoolToVisibilityConverterKey" />
         <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0" TintColor="#FF000000" FallbackColor="#FF000000" />
         <Style x:Key="NakedButtonStyle" TargetType="Button">
             <Setter Property="Template">
@@ -24,6 +25,9 @@
     </Page.Resources>
 
     <Grid RowDefinitions="*,Auto">
+        <Grid Background="Black" Grid.RowSpan="2" Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource NotBoolToVisibilityConverterKey}}">
+            <Image Source="ms-appx:///Assets/logo_1400x1400.png" HorizontalAlignment="Left" Stretch="Uniform" />
+        </Grid>
         <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2" 
                Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>

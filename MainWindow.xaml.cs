@@ -48,13 +48,16 @@ namespace RadioParadisePlayer
             }
         }
 
+        LogoPage logoPage;
         PlayerPage playerPage;
 
         public MainWindow()
         {
             this.InitializeComponent();
             ExtendsContentIntoTitleBar = true;
-        }
+            logoPage = new LogoPage();
+            NavigateToPage(logoPage);            
+        }        
 
         private void NavigateToPage (Page nextPage)
         {
@@ -79,7 +82,7 @@ namespace RadioParadisePlayer
                 case "nviStop":
                     if (playerPage != null)
                     {
-                        navigationView.Content = null;
+                        navigationView.Content = logoPage;
                         await playerPage.StopAsync();
                     }
                     break;
@@ -92,7 +95,7 @@ namespace RadioParadisePlayer
 
         private async void Window_Closed(object sender, WindowEventArgs args)
         {
-            await player?.StopAsync();
+            if (player is not null) await player.StopAsync();
         }
     }
 }

@@ -12,6 +12,11 @@
     <EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="Assets\logo_1400x1400.png" />
+    <None Remove="Assets\logo_180x160.png" />
+    <None Remove="Assets\logo_290x85.png" />
+    <None Remove="Assets\logo_512x512.png" />
+    <None Remove="LogoPage.xaml" />
     <None Remove="PlayerPage.xaml" />
     <None Remove="SettingsPage.xaml" />
   </ItemGroup>
@@ -41,6 +46,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Api Documentation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="LogoPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="SettingsPage.xaml">
