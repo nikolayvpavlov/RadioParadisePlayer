@@ -29,7 +29,8 @@ namespace RadioParadisePlayer
     {
         Logic.Player player;
 
-        Microsoft.UI.Media.Playback.MediaPlayer mPlayer;
+        Microsoft.UI.Media.Playback.MediaPlayer mPlayer { get; set; }
+
         BitmapImage BitmapImageSlideshowOne { get; set; }
         BitmapImage BitmapImageSlideshowTwo { get; set; }
         BitmapImage BitmapImageCoverArt { get; set; }
@@ -56,7 +57,7 @@ namespace RadioParadisePlayer
             player.PropertyChanged += Player_PropertyChanged;
 
             mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
-            mPlayer.Volume = 0.4;
+            mPlayer.Volume = 0.3;
             mPlayer.MediaFailed += MPlayer_MediaFailed;
         }
 
@@ -85,8 +86,6 @@ namespace RadioParadisePlayer
             mPlayer.Pause();
             await player.StopAsync();
         }
-
-        public bool IsPlaying => player.IsPlaying;
 
         private async void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -142,10 +141,12 @@ namespace RadioParadisePlayer
             if (spPlayerInfo.Children.Contains(gridInfo))
             {
                 spPlayerInfo.Children.Remove(gridInfo);
+                (toggleInfo.Content as FontIcon).Glyph = "\xE70e";
             }
             else
             {
                 spPlayerInfo.Children.Add(gridInfo);
+                (toggleInfo.Content as FontIcon).Glyph = "\xE70d";
             }
         }
     }
