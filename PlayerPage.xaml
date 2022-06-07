@@ -25,29 +25,29 @@
     </Page.Resources>
 
     <Grid RowDefinitions="*,Auto">
-        <Grid Background="Black" Grid.RowSpan="2" Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource NotBoolToVisibilityConverterKey}}">
+        <Grid Background="Black" Grid.RowSpan="2" Visibility="{x:Bind Player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource NotBoolToVisibilityConverterKey}}">
             <Image Source="ms-appx:///Assets/logo_1400x1400.png" HorizontalAlignment="Left" Stretch="Uniform" />
         </Grid>
         <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2" 
-               Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
+               Visibility="{x:Bind Player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>
                 <ScalarTransition Duration="00:00:02" />
             </Image.OpacityTransition>
         </Image>
         <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" Grid.RowSpan="2"
-               Visibility="{x:Bind player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
+               Visibility="{x:Bind Player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>
                 <ScalarTransition Duration="00:00:02" />
             </Image.OpacityTransition>
         </Image>
         <ProgressRing x:Name="progressRing" Grid.RowSpan="2"                      
-                      IsActive="{x:Bind player.IsLoading, Mode=OneWay}" />
-        <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{x:Bind player.IsPlaying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }"
+                      IsActive="{x:Bind Player.IsLoading, Mode=OneWay}" />
+        <StackPanel Grid.Row="1" Orientation="Vertical" Visibility="{x:Bind Player.IsPlaying, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }"
                     Padding="12, 12, 12, 12" Background="{ThemeResource CustomAcrylicBrush}" x:Name="spPlayerInfo">
             <Grid ColumnDefinitions="*,24" Height="24" HorizontalAlignment="Stretch" ColumnSpacing="16">
                 <ProgressBar HorizontalAlignment="Stretch" VerticalAlignment="Center" Grid.Column="0" Foreground="White" 
-                             Value="{x:Bind player.CurrentSongProgress, Mode=OneWay}" 
-                             Maximum="{x:Bind player.CurrentSong.Duration, Mode=OneWay}" />
+                             Value="{x:Bind Player.CurrentSongProgress, Mode=OneWay}" 
+                             Maximum="{x:Bind Player.CurrentSong.Duration, Mode=OneWay}" />
                 <Button Grid.Column="1" HorizontalAlignment="Right" Height="24" Width="24"
                         BorderThickness="0" BorderBrush="Transparent" Padding="4,4,4,4"
                         Foreground="White" Background="Transparent"
@@ -78,9 +78,9 @@
                     </Button.Flyout>
                 </Button>
 
-                <TextBlock Text="{x:Bind player.CurrentSong.Title, Mode=OneWay}" Grid.Column="1" Grid.Row="0" FontSize="24" Foreground="White" />
-                <TextBlock Text="{x:Bind player.CurrentSong.Artist, Mode=OneWay}" Grid.Column="1" Grid.Row="1" FontSize="18" Foreground="White" />
-                <TextBlock Text="{x:Bind player.CurrentSong.Album, Mode=OneWay}" Grid.Column="1" Grid.Row="2" FontSize="18" Foreground="White" />
+                <TextBlock Text="{x:Bind Player.CurrentSong.Title, Mode=OneWay}" Grid.Column="1" Grid.Row="0" FontSize="24" Foreground="White" />
+                <TextBlock Text="{x:Bind Player.CurrentSong.Artist, Mode=OneWay}" Grid.Column="1" Grid.Row="1" FontSize="18" Foreground="White" />
+                <TextBlock Text="{x:Bind Player.CurrentSong.Album, Mode=OneWay}" Grid.Column="1" Grid.Row="2" FontSize="18" Foreground="White" />
 
                 <Button Grid.Column="3" Grid.Row="2"
                         BorderThickness="0" BorderBrush="Transparent" Padding="4,4,4,4"
@@ -94,7 +94,7 @@
                                 <TextBlock VerticalAlignment="Center">Quiet</TextBlock>
                                 <Slider Orientation="Horizontal" Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" 
                                     IsThumbToolTipEnabled="False" Width="100"
-                                    Value="{x:Bind mPlayer.Volume, Mode=TwoWay}" 
+                                    Value="{x:Bind Player.Volume, Mode=TwoWay}" 
                                     Minimum="0" Maximum="1" SmallChange="0.1" LargeChange="0.2" StepFrequency="0.02">
                                 </Slider>
                                 <TextBlock VerticalAlignment="Center">Loud</TextBlock>

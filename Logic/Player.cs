@@ -22,6 +22,7 @@ namespace RadioParadisePlayer.Logic
         private System.Timers.Timer slideshowTimer;
         private SongSlideshow currentSongSlideshow;
         private object lockSlideshow = new object();
+        private Microsoft.UI.Media.Playback.MediaPlayer mPlayer;
 
         internal static User User { get; private set; } = null;
 
@@ -119,6 +120,19 @@ namespace RadioParadisePlayer.Logic
             }
         }
 
+        public double Volume
+        {
+            get { return mPlayer.Volume; }
+            set
+            {
+                if (mPlayer.Volume != value)
+                {
+                    mPlayer.Volume = value;
+                    OnPropertyChanged(nameof(Volume));
+                }
+            }
+        }
+
         public int BitRate { get; private set; }
         public string Channel { get; private set; }
 
@@ -129,12 +143,21 @@ namespace RadioParadisePlayer.Logic
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private void PlaySong()
+        {
+            var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(CurrentSong.Gapless_Url));
+            mPlayer.Source = source;
+            mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(CurrentSong.Cue);
+            mPlayer.Play();
+        }
+
         private void MoveToNextSong()
         {
             currentSongIndex++;
             if (currentSongIndex >= currentPlaylist.Songs.Count) return;
             CurrentSong = currentPlaylist.Songs[currentSongIndex];
-            CurrentSongProgress = CurrentSong.Cue;            
+            CurrentSongProgress = CurrentSong.Cue;
+            PlaySong();
             //Reset the slideShow;
             slideshowTimer.Stop();
             lock (lockSlideshow)
@@ -164,8 +187,8 @@ namespace RadioParadisePlayer.Logic
                     await LoadPlaylist();
                     dispatcherQueue.TryEnqueue(MoveToNextSong);
                 }
+                await Task.Delay(PlayerTimerGranularity);
                 dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
-                await Task.Delay(PlayerTimerGranularity);                
             }
         }
 
@@ -188,6 +211,10 @@ namespace RadioParadisePlayer.Logic
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
             BitRate = 3;
             Channel = "0";
+            mPlayer = new()
+            {
+                Volume = 0.3
+            };
         }
 
         public async Task PlayAsync()
@@ -208,6 +235,7 @@ namespace RadioParadisePlayer.Logic
         public async Task StopAsync()
         {
             if (!IsPlaying) return;
+            mPlayer.Pause(); //There is no stop method.
             slideshowTimer.Stop();
             ctsPlayer?.Cancel();
             await playerTask;

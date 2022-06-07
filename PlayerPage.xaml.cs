@@ -27,9 +27,7 @@ namespace RadioParadisePlayer
     /// </summary>
     internal sealed partial class PlayerPage : Page
     {
-        Logic.Player player;
-
-        Microsoft.UI.Media.Playback.MediaPlayer mPlayer { get; set; }
+        Logic.Player Player { get; set; }
 
         BitmapImage BitmapImageSlideshowOne { get; set; }
         BitmapImage BitmapImageSlideshowTwo { get; set; }
@@ -39,7 +37,7 @@ namespace RadioParadisePlayer
         SemaphoreSlim semaphoreCoverSlideshowOne;
         SemaphoreSlim semaphoreCoverSlideshowTwo;
 
-        public PlayerPage(Logic.Player player)
+        public PlayerPage()
         {
             this.InitializeComponent();
 
@@ -52,13 +50,25 @@ namespace RadioParadisePlayer
             semaphoreCoverArtImage = new SemaphoreSlim(1);
             semaphoreCoverSlideshowOne = new SemaphoreSlim(1);
             semaphoreCoverSlideshowTwo = new SemaphoreSlim(1);
+        }
 
-            this.player = player;
-            player.PropertyChanged += Player_PropertyChanged;
+        protected override async void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.Player = e.Parameter as Logic.Player;
+            Player.PropertyChanged += Player_PropertyChanged;
+            base.OnNavigatedTo(e);
+            if (!Player.IsPlaying) await Player.PlayAsync();
+            else
+            {
+                Player_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("CurrentSlideshowPictureUrl"));
+                Player_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("CurrentSong"));
+            }
+        }
 
-            mPlayer = new Microsoft.UI.Media.Playback.MediaPlayer();
-            mPlayer.Volume = 0.3;
-            mPlayer.MediaFailed += MPlayer_MediaFailed;
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            this.Player.PropertyChanged -= Player_PropertyChanged;
+            base.OnNavigatedFrom(e);
         }
 
         private void BitmapImageSlideshowTwo_ImageOpened(object sender, RoutedEventArgs e)
@@ -76,23 +86,12 @@ namespace RadioParadisePlayer
             semaphoreCoverArtImage.Release();
         }
 
-        public async Task PlayAsync()
-        {
-            await player.PlayAsync();
-        }
-
-        public async Task StopAsync()
-        {
-            mPlayer.Pause();
-            await player.StopAsync();
-        }
-
         private async void Player_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
                 case "CurrentSlideshowPictureUrl":
-                    var stream = await Api.RpApiClient.DownloadImageAsync(player.CurrentSlideshowPictureUrl);
+                    var stream = await Api.RpApiClient.DownloadImageAsync(Player.CurrentSlideshowPictureUrl);
                     if (imgSlideshowOne.Opacity == 0)
                     {
                         await semaphoreCoverSlideshowOne.WaitAsync();
@@ -110,30 +109,16 @@ namespace RadioParadisePlayer
                     break;
 
                 case "CurrentSong":
-                    Playsong();
                     await semaphoreCoverArtImage.WaitAsync();
                     await LoadCoverArtAsync();
                     break;
             }
         }
 
-        private void Playsong()
-        {
-            var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(player.CurrentSong.Gapless_Url));
-            mPlayer.Source = source;
-            mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(player.CurrentSong.Cue);
-            mPlayer.Play();
-        }
-
         private async Task LoadCoverArtAsync()
         {
-            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + player.CurrentSongCoverArtPictureUrl);
+            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + Player.CurrentSongCoverArtPictureUrl);
             await BitmapImageCoverArt.SetSourceAsync(stream.AsRandomAccessStream());
-        }
-
-        private void MPlayer_MediaFailed(Microsoft.UI.Media.Playback.MediaPlayer sender, Microsoft.UI.Media.Playback.MediaPlayerFailedEventArgs args)
-        {
-            string s = args.ErrorMessage;
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)

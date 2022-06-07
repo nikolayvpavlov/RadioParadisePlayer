@@ -26,11 +26,16 @@ namespace RadioParadisePlayer
     {
         SettingsViewModel vmSettings { get; set; }
 
-        public SettingsPage(SettingsViewModel vm)
+        public SettingsPage()
         {
-            vmSettings = vm;
             this.InitializeComponent();
             this.Loaded += SettingsPage_Loaded;            
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            vmSettings = e.Parameter as SettingsViewModel;
+            base.OnNavigatedTo(e);
         }
 
         private async void SettingsPage_Loaded(object sender, RoutedEventArgs e)

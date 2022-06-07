@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using RadioParadisePlayer.Helpers;
@@ -56,46 +57,30 @@ namespace RadioParadisePlayer
             this.InitializeComponent();
             ExtendsContentIntoTitleBar = true;
             logoPage = new LogoPage();
-            NavigateToPage(logoPage);            
+            nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
         }        
-
-        private void NavigateToPage (Page nextPage)
-        {
-            if ((navigationView.Content as Page) != nextPage && nextPage != null)
-            {
-                navigationView.Content = nextPage;
-            }
-        }
 
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
             switch (args.SelectedItemContainer.Name)
             {
                 case "nviPlay":
-                    if (playerPage is null)
-                    {
-                        playerPage = new PlayerPage(Player);
-                    }
-                    NavigateToPage(playerPage);
-                    if (!player.IsPlaying) await player.PlayAsync();
+                    nvFrame.Navigate(typeof(PlayerPage), Player, new EntranceNavigationTransitionInfo());
                     break;
                 case "nviStop":
-                    if (playerPage != null)
-                    {
-                        navigationView.Content = logoPage;
-                        await playerPage.StopAsync();
-                    }
+                    await Player.StopAsync();
+                    nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
                     break;
             }
             if (args.IsSettingsSelected)
             {
-                NavigateToPage (new SettingsPage(SettingsViewModel));
+                nvFrame.Navigate(typeof(SettingsPage), SettingsViewModel, new EntranceNavigationTransitionInfo());
             }
         }
 
         private async void Window_Closed(object sender, WindowEventArgs args)
         {
-            if (player is not null) await player.StopAsync();
+            if (Player is not null) await Player.StopAsync();
         }
     }
 }
