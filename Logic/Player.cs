@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Dispatching;
 using RadioParadisePlayer.Api;
+using RadioParadisePlayer.Helpers;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Windows.Storage;
 
 namespace RadioParadisePlayer.Logic
 {
@@ -83,6 +85,7 @@ namespace RadioParadisePlayer.Logic
                     slideshowEnabled = value;
                     OnPropertyChanged(nameof(SlideshowEnabled));
                     if (isPlaying) slideshowTimer.Enabled = slideshowEnabled;
+                    ConfigurationHelper.WriteValue("SlideShow", slideshowEnabled);
                 }
             }
         }
@@ -129,6 +132,7 @@ namespace RadioParadisePlayer.Logic
                 {
                     mPlayer.Volume = value;
                     OnPropertyChanged(nameof(Volume));
+                    ConfigurationHelper.WriteValue("Volume", mPlayer.Volume);
                 }
             }
         }
@@ -188,7 +192,8 @@ namespace RadioParadisePlayer.Logic
                     dispatcherQueue.TryEnqueue(MoveToNextSong);
                 }
                 await Task.Delay(PlayerTimerGranularity);
-                dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
+                //dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
+                dispatcherQueue.TryEnqueue(() => CurrentSongProgress = (int)mPlayer.PlaybackSession.Position.TotalMilliseconds); ;
             }
         }
 
@@ -209,12 +214,11 @@ namespace RadioParadisePlayer.Logic
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             slideshowTimer = new System.Timers.Timer(10_000); //10 secs following Jarred (RP)
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
-            BitRate = 3;
-            Channel = "0";
-            mPlayer = new()
-            {
-                Volume = 0.3
-            };
+
+            BitRate = ConfigurationHelper.ReadValue<int>("BitRate", 3);
+            Channel = ConfigurationHelper.ReadValue<string>("Channel", "0");
+            mPlayer = new() { };
+            Volume = ConfigurationHelper.ReadValue<double>("Volume", 0.3);
         }
 
         public async Task PlayAsync()
@@ -253,6 +257,7 @@ namespace RadioParadisePlayer.Logic
                 await StopAsync();
                 await PlayAsync();
             }
+            ConfigurationHelper.WriteValue("BitRate", bitRate);
         }
 
         public async Task SetChannel(string channel)
@@ -263,6 +268,7 @@ namespace RadioParadisePlayer.Logic
                 await StopAsync();
                 await PlayAsync();
             }
+            ConfigurationHelper.WriteValue("Channel", channel);
         }
 
     }

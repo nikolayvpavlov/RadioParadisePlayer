@@ -31,7 +31,6 @@ namespace RadioParadisePlayer
         {
             get
             {
-                if (player is null) player = new Logic.Player();
                 return player;
             }
         }
@@ -44,21 +43,32 @@ namespace RadioParadisePlayer
                 if (vmSettings is null)
                 {
                     vmSettings = new SettingsViewModel(Player);
+                    vmSettings.PropertyChanged += VmSettings_PropertyChanged;
                 }
                 return vmSettings;
             }
         }
 
-        LogoPage logoPage;
-        PlayerPage playerPage;
+        private void VmSettings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case "AppTheme":
+                    (Content as Grid).RequestedTheme = vmSettings.AppTheme; 
+                    break;
+            }
+        }
 
         public MainWindow()
         {
             this.InitializeComponent();
             ExtendsContentIntoTitleBar = true;
-            logoPage = new LogoPage();
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
-        }        
+            player = new Logic.Player();
+
+            int theme = ConfigurationHelper.ReadValue<int>("AppTheme", 0);
+            SettingsViewModel.AppTheme = (ElementTheme)theme;
+        }
 
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
@@ -80,6 +90,7 @@ namespace RadioParadisePlayer
 
         private async void Window_Closed(object sender, WindowEventArgs args)
         {
+            nvFrame.Navigate(typeof(LogoPage));
             if (Player is not null) await Player.StopAsync();
         }
     }

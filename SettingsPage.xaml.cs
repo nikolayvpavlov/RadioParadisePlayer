@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using RadioParadisePlayer.Helpers;
 using RadioParadisePlayer.Logic;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,9 @@ namespace RadioParadisePlayer
             rbChannel.UpdateLayout();
             //TO DO: Implement in a better way with proper error handling
             rbChannel.SelectedIndex = Int32.Parse(vmSettings.SelectedChannel ?? "0");
+
+            rbAppTheme.SelectedIndex = (int)vmSettings.AppTheme;
+            rbAppTheme.UpdateLayout();
         }
 
         private void rbBitRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -65,6 +69,29 @@ namespace RadioParadisePlayer
             if (selectedChannel?.Chan != vmSettings.SelectedChannel)
             {
                 vmSettings.SelectedChannel = selectedChannel?.Chan;
+            }
+        }
+
+        private void rbAppTheme_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            switch (rbAppTheme.SelectedIndex)
+            {
+                case -1: break; //This is also called, obviously when the item is initialized.
+                case 0: //Light
+                    vmSettings.AppTheme = ElementTheme.Default;
+                    break;
+                case 1: //Light
+                    vmSettings.AppTheme = ElementTheme.Light;
+                    break;
+                case 2: //Light
+                    vmSettings.AppTheme = ElementTheme.Dark;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException("Theme option not supported.");
+            }
+            if (rbAppTheme.SelectedIndex >= 0)
+            {
+                ConfigurationHelper.WriteValue("AppTheme", rbAppTheme.SelectedIndex);
             }
         }
     }

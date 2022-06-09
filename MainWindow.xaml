@@ -10,19 +10,24 @@
     
     Closed="Window_Closed">
 
-    <NavigationView x:Name="navigationView" IsSettingsVisible="True" PaneDisplayMode="LeftCompact" IsBackButtonVisible="Collapsed"
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.BackgroundTransition>
+            <BrushTransition />
+        </Grid.BackgroundTransition>
+        <NavigationView x:Name="navigationView" IsSettingsVisible="True" PaneDisplayMode="LeftCompact" IsBackButtonVisible="Collapsed"
                     SelectionChanged="navigationView_SelectionChanged">
-        <NavigationView.MenuItems>
-            <NavigationViewItem x:Name="nviPlay" Icon="Play" Content="Play" Tag="Play" />
-            <NavigationViewItem x:Name="nviStop" Icon="Stop" Content="Stop" Tag="Stop" />
-        </NavigationView.MenuItems>
-        <NavigationView.ContentTransitions>
-            <NavigationThemeTransition>
-                <SlideNavigationTransitionInfo Effect="FromLeft" />
-            </NavigationThemeTransition>
-        </NavigationView.ContentTransitions>
-        <Frame x:Name="nvFrame">
-            
-        </Frame>
-    </NavigationView>
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="nviPlay" Icon="Play" Content="Play" Tag="Play" />
+                <NavigationViewItem x:Name="nviStop" Icon="Stop" Content="Stop" Tag="Stop" />
+            </NavigationView.MenuItems>
+            <NavigationView.ContentTransitions>
+                <NavigationThemeTransition>
+                    <SlideNavigationTransitionInfo Effect="FromLeft" />
+                </NavigationThemeTransition>
+            </NavigationView.ContentTransitions>
+            <Frame x:Name="nvFrame">
+
+            </Frame>
+        </NavigationView>
+    </Grid>
 </Window>

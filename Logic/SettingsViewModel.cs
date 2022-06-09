@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml;
 using RadioParadisePlayer.Api;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,23 @@ namespace RadioParadisePlayer.Logic
                 }
             }
         }
+
+        private ElementTheme appTheme;
+
+        public ElementTheme AppTheme
+        {
+            get { return appTheme; }
+            set 
+            {
+                if (appTheme != value)
+                {
+                    appTheme = value;
+                    OnPropertyChanged(nameof(AppTheme));
+                }
+                appTheme = value; 
+            }
+        }
+
 
         public event PropertyChangedEventHandler PropertyChanged;
 

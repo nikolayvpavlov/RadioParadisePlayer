@@ -13,67 +13,99 @@
         <localHelpers:InvertedBoolConverter x:Key="InvertedBoolConverterKey" />
     </Page.Resources>
 
-    <Grid ColumnDefinitions="*,380" Padding="32,32,32,32" HorizontalAlignment="Stretch">
-        <StackPanel Orientation="Vertical" Grid.Column="0" HorizontalAlignment="Stretch">
-            <TextBlock Text="Settings" Padding="8, 8, 32, 8" Style="{ThemeResource TitleTextBlockStyle}" />
-            <Grid HorizontalAlignment="Stretch" Height="48" 
+    <StackPanel Orientation="Vertical" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel.BackgroundTransition>
+            <BrushTransition />
+        </StackPanel.BackgroundTransition>
+        
+        <TextBlock Text="Settings" Padding="8, 8, 32, 8" Style="{ThemeResource TitleTextBlockStyle}" />
+
+        <Grid ColumnDefinitions="*,380" Padding="32,32,32,32" HorizontalAlignment="Stretch" ColumnSpacing="32">
+            <StackPanel Orientation="Vertical" Grid.Column="0" HorizontalAlignment="Stretch">
+                <Grid HorizontalAlignment="Stretch" Height="48" 
                   ColumnDefinitions="*,Auto"
                         Background="{ThemeResource ExpanderHeaderBackground}"
                         BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}"
                         BorderThickness="{ThemeResource ExpanderHeaderBorderThickness}"
                         CornerRadius="{ThemeResource HyperlinkFocusRectCornerRadius}"
                         Padding="{ThemeResource ExpanderHeaderPadding}">
-                <StackPanel Orientation="Horizontal" Grid.Column="0" >
-                    <FontIcon Glyph="&#xE786;" Margin="0,0,16,0" />
-                    <TextBlock Text="Slideshow" VerticalAlignment="Center"/> 
-                </StackPanel>
-                <ToggleSwitch x:Name="tsSlideshow" HorizontalAlignment="Right" Grid.Column="1" FlowDirection="RightToLeft" Margin="0,0,16,0" 
-                              IsOn="{x:Bind vmSettings.Player.SlideshowEnabled, Mode=TwoWay}"/>
-            </Grid>
-            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                <Expander.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon Glyph="&#xE93E;" Margin="0,0,16,0"/>
-                        <TextBlock Text="Stream quality" />
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" >
+                        <FontIcon Glyph="&#xE786;" Margin="0,0,16,0" />
+                        <TextBlock Text="Slideshow" VerticalAlignment="Center"/>
                     </StackPanel>
-                </Expander.Header>
-                <Expander.Content>
-                    <Grid HorizontalAlignment="Stretch">
-                        <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged"
+                    <ToggleSwitch x:Name="tsSlideshow" HorizontalAlignment="Right" Grid.Column="1" FlowDirection="RightToLeft" Margin="0,0,16,0" 
+                              IsOn="{x:Bind vmSettings.Player.SlideshowEnabled, Mode=TwoWay}"/>
+                </Grid>
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE93E;" Margin="0,0,16,0"/>
+                            <TextBlock Text="Stream quality" />
+                        </StackPanel>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <Grid HorizontalAlignment="Stretch">
+                            <RadioButtons x:Name="rbBitRate" SelectionChanged="rbBitRate_SelectionChanged"
                                   IsEnabled="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolConverterKey}}">
-                            <x:String>Lowest (least data traffic)</x:String>
-                            <x:String>Low</x:String>
-                            <x:String>Good</x:String>
-                            <x:String>High</x:String>
-                            <x:String>Best (highest data traffic)</x:String>
-                        </RadioButtons>
-                        <ProgressRing x:Name="progressRingChangingBitRate" 
+                                <x:String>Lowest (least data traffic)</x:String>
+                                <x:String>Low</x:String>
+                                <x:String>Good</x:String>
+                                <x:String>High</x:String>
+                                <x:String>Best (highest data traffic)</x:String>
+                            </RadioButtons>
+                            <ProgressRing x:Name="progressRingChangingBitRate" 
                                       IsActive="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay}" 
                                       HorizontalAlignment="Center"/>
-                    </Grid>
-                </Expander.Content>
-            </Expander>
+                        </Grid>
+                    </Expander.Content>
+                </Expander>
 
-            <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
-                <Expander.Header>
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon Glyph="&#xEC4F;" Margin="0,0,16,0"/>
-                        <TextBlock Text="Channel" />
-                    </StackPanel>
-                </Expander.Header>
-                <Expander.Content>
-                    <Grid HorizontalAlignment="Stretch">
-                        <ProgressRing x:Name="progressRingChannel" IsActive="{x:Bind vmSettings.IsLoading, Mode=OneWay}" />
-                        <RadioButtons x:Name="rbChannel" SelectionChanged="rbChannel_SelectionChanged"
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xEC4F;" Margin="0,0,16,0"/>
+                            <TextBlock Text="Channel" />
+                        </StackPanel>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <Grid HorizontalAlignment="Stretch">
+                            <ProgressRing x:Name="progressRingChannel" IsActive="{x:Bind vmSettings.IsLoading, Mode=OneWay}" />
+                            <RadioButtons x:Name="rbChannel" SelectionChanged="rbChannel_SelectionChanged"
                                   ItemsSource="{x:Bind vmSettings.ChannelsList, Mode=OneWay}" 
                                   IsEnabled="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay, Converter={StaticResource InvertedBoolConverterKey}}"/>
-                        <!--SelectedIndex="{x:Bind vmSettings.SelectedChannel, Mode=TwoWay}"/>-->
-                        <ProgressRing x:Name="progressRingChangingChannel" 
+                            <!--SelectedIndex="{x:Bind vmSettings.SelectedChannel, Mode=TwoWay}"/>-->
+                            <ProgressRing x:Name="progressRingChangingChannel" 
                                       IsActive="{x:Bind vmSettings.Player.IsLoading, Mode=OneWay}" 
                                       HorizontalAlignment="Center" />
-                    </Grid>
-                </Expander.Content>
-            </Expander>
-        </StackPanel>
-    </Grid>
+                        </Grid>
+                    </Expander.Content>
+                </Expander>
+
+                <Expander HorizontalAlignment="Stretch" HorizontalContentAlignment="Left">
+                    <Expander.Header>
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon Glyph="&#xE790;" Margin="0,0,16,0"/>
+                            <TextBlock Text="Application theme" />
+                        </StackPanel>
+                    </Expander.Header>
+                    <Expander.Content>
+                        <Grid HorizontalAlignment="Stretch">
+                            <RadioButtons x:Name="rbAppTheme" SelectionChanged="rbAppTheme_SelectionChanged">
+                                <x:String>Default</x:String>
+                                <x:String>Light</x:String>
+                                <x:String>Dark</x:String>
+                            </RadioButtons>
+                        </Grid>
+                    </Expander.Content>
+                </Expander>
+            </StackPanel>
+
+            <StackPanel Orientation="Vertical" Grid.Column="1" HorizontalAlignment="Stretch">
+                <TextBlock Text="About" Style="{ThemeResource SubtitleTextBlockStyle}" Padding="0, 0, 0, 16"  />
+                <TextBlock>RadioParadise Player for Windows 11
+                <LineBreak />
+                © 2022 Nikolay Pavlov</TextBlock>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
 </Page>
