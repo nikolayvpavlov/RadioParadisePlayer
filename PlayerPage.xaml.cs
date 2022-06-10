@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
@@ -91,20 +92,27 @@ namespace RadioParadisePlayer
             switch (e.PropertyName)
             {
                 case "CurrentSlideshowPictureUrl":
-                    var stream = await Api.RpApiClient.DownloadImageAsync(Player.CurrentSlideshowPictureUrl);
-                    if (imgSlideshowOne.Opacity == 0)
+                    try
                     {
-                        await semaphoreCoverSlideshowOne.WaitAsync();
-                        await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
-                        imgSlideshowOne.Opacity = 1;
-                        imgSlideshowTwo.Opacity = 0;
+                        var stream = await Api.RpApiClient.DownloadImageAsync(Player.CurrentSlideshowPictureUrl);
+                        if (imgSlideshowOne.Opacity == 0)
+                        {
+                            await semaphoreCoverSlideshowOne.WaitAsync();
+                            await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
+                            imgSlideshowOne.Opacity = 1;
+                            imgSlideshowTwo.Opacity = 0;
+                        }
+                        else
+                        {
+                            await semaphoreCoverSlideshowTwo.WaitAsync();
+                            await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
+                            imgSlideshowOne.Opacity = 0;
+                            imgSlideshowTwo.Opacity = 1;
+                        }
                     }
-                    else
+                    catch (HttpRequestException) 
                     {
-                        await semaphoreCoverSlideshowTwo.WaitAsync();
-                        await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
-                        imgSlideshowOne.Opacity = 0;
-                        imgSlideshowTwo.Opacity = 1;
+                        //Do nothing. Just ignore this.
                     }
                     break;
 

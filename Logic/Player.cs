@@ -182,15 +182,6 @@ namespace RadioParadisePlayer.Logic
         {
             while (!cancellation.IsCancellationRequested)
             {
-                if (CurrentSongProgress >= CurrentSong.Duration)
-                {
-                    dispatcherQueue.TryEnqueue(MoveToNextSong);
-                }
-                if (currentSongIndex >= currentPlaylist.Songs.Count)
-                {
-                    await LoadPlaylist();
-                    dispatcherQueue.TryEnqueue(MoveToNextSong);
-                }
                 await Task.Delay(PlayerTimerGranularity);
                 //dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
                 dispatcherQueue.TryEnqueue(() => CurrentSongProgress = (int)mPlayer.PlaybackSession.Position.TotalMilliseconds); ;
@@ -219,6 +210,20 @@ namespace RadioParadisePlayer.Logic
             Channel = ConfigurationHelper.ReadValue<string>("Channel", "0");
             mPlayer = new() { };
             Volume = ConfigurationHelper.ReadValue<double>("Volume", 0.3);
+            mPlayer.MediaEnded += MPlayer_MediaEnded;
+        }
+
+        private void MPlayer_MediaEnded(Microsoft.UI.Media.Playback.MediaPlayer sender, object args)
+        {
+            dispatcherQueue.TryEnqueue(async () =>
+            {
+                MoveToNextSong();
+                if (currentSongIndex >= currentPlaylist.Songs.Count)
+                {
+                    await LoadPlaylist();
+                    MoveToNextSong();
+                }
+            });
         }
 
         public async Task PlayAsync()
