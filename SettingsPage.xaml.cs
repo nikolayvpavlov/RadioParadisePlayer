@@ -91,7 +91,7 @@ namespace RadioParadisePlayer
             }
             if (rbAppTheme.SelectedIndex >= 0)
             {
-                ConfigurationHelper.WriteValue("AppTheme", rbAppTheme.SelectedIndex);
+                (App.Current as App).AppConfig.WriteValue("AppTheme", rbAppTheme.SelectedIndex);
             }
         }
     }

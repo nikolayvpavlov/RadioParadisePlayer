@@ -125,8 +125,15 @@ namespace RadioParadisePlayer
 
         private async Task LoadCoverArtAsync()
         {
-            var stream = await Api.RpApiClient.DownloadImageAsync("https:" + Player.CurrentSongCoverArtPictureUrl);
-            await BitmapImageCoverArt.SetSourceAsync(stream.AsRandomAccessStream());
+            try
+            {
+                var stream = await Api.RpApiClient.DownloadImageAsync("https:" + Player.CurrentSongCoverArtPictureUrl);
+                await BitmapImageCoverArt.SetSourceAsync(stream.AsRandomAccessStream());
+            }
+            catch (HttpRequestException)
+            {
+                //Do nothing. Just ignore this.
+            }
         }
 
         private void ToggleButton_Click(object sender, RoutedEventArgs e)

@@ -85,7 +85,7 @@ namespace RadioParadisePlayer.Logic
                     slideshowEnabled = value;
                     OnPropertyChanged(nameof(SlideshowEnabled));
                     if (isPlaying) slideshowTimer.Enabled = slideshowEnabled;
-                    ConfigurationHelper.WriteValue("SlideShow", slideshowEnabled);
+                    (App.Current as App).AppConfig.WriteValue("SlideShow", slideshowEnabled);
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace RadioParadisePlayer.Logic
                 {
                     mPlayer.Volume = value;
                     OnPropertyChanged(nameof(Volume));
-                    ConfigurationHelper.WriteValue("Volume", mPlayer.Volume);
+                    (App.Current as App).AppConfig.WriteValue("Volume", mPlayer.Volume);
                 }
             }
         }
@@ -206,10 +206,10 @@ namespace RadioParadisePlayer.Logic
             slideshowTimer = new System.Timers.Timer(10_000); //10 secs following Jarred (RP)
             slideshowTimer.Elapsed += SlideshowTimer_Elapsed;
 
-            BitRate = ConfigurationHelper.ReadValue<int>("BitRate", 3);
-            Channel = ConfigurationHelper.ReadValue<string>("Channel", "0");
+            BitRate = (App.Current as App).AppConfig.ReadValue<int>("BitRate", 3);
+            Channel = (App.Current as App).AppConfig.ReadValue<string>("Channel", "0");
             mPlayer = new() { };
-            Volume = ConfigurationHelper.ReadValue<double>("Volume", 0.3);
+            Volume = (App.Current as App).AppConfig.ReadValue<double>("Volume", 0.3);
             mPlayer.MediaEnded += MPlayer_MediaEnded;
         }
 
@@ -262,7 +262,7 @@ namespace RadioParadisePlayer.Logic
                 await StopAsync();
                 await PlayAsync();
             }
-            ConfigurationHelper.WriteValue("BitRate", bitRate);
+            (App.Current as App).AppConfig.WriteValue("BitRate", bitRate);
         }
 
         public async Task SetChannel(string channel)
@@ -273,7 +273,7 @@ namespace RadioParadisePlayer.Logic
                 await StopAsync();
                 await PlayAsync();
             }
-            ConfigurationHelper.WriteValue("Channel", channel);
+            (App.Current as App).AppConfig.WriteValue("Channel", channel);
         }
 
     }

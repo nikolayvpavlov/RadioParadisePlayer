@@ -66,7 +66,7 @@ namespace RadioParadisePlayer
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
             player = new Logic.Player();
 
-            int theme = ConfigurationHelper.ReadValue<int>("AppTheme", 0);
+            int theme = (App.Current as App).AppConfig.ReadValue<int>("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;
         }
 

@@ -8,23 +8,23 @@ using Windows.Storage;
 
 namespace RadioParadisePlayer.Helpers
 {
-    class ConfigurationHelper
+    class PackagedAppConfig : AppConfig
     {
-        static ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
+        ApplicationDataContainer localSettings = ApplicationData.Current.LocalSettings;
         
-        public static T ReadValue<T>(string key)
+        public override T ReadValue<T>(string key)
         {
             if (localSettings.Values[key] is null) return default;
             else return (T)localSettings.Values[key];
         }
 
-        public static T ReadValue<T>(string key, T defaultValue)
+        public override T ReadValue<T>(string key, T defaultValue)
         {
             if (localSettings.Values[key] is null) return defaultValue;
             else return (T)localSettings.Values[key];
         }
 
-        public static void WriteValue<T> (string key, T value)
+        public override void WriteValue<T> (string key, T value)
         {
             localSettings.Values[key] = value;
         }
