@@ -14,6 +14,7 @@ namespace RadioParadisePlayer.Helpers
     class UnpackagedAppConfig : AppConfig
     {
         Dictionary<string, string> localSettings = new Dictionary<string, string>();
+        string settingsFolder;
         string settingsFileName;
 
         JsonSerializerOptions jsonOptions = new JsonSerializerOptions()
@@ -23,7 +24,8 @@ namespace RadioParadisePlayer.Helpers
 
     public UnpackagedAppConfig()
         {
-            settingsFileName = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\RadioParadise Player\\settings.json";
+            settingsFolder = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\RadioParadise Player\\";
+            settingsFileName = settingsFolder + "settings.json";
             try
             {
                 string settingsJson = File.ReadAllText(settingsFileName);
@@ -88,7 +90,18 @@ namespace RadioParadisePlayer.Helpers
                 localSettings.Add(key, value.ToString());
             }
             var json = System.Text.Json.JsonSerializer.Serialize<Dictionary<string, string>>(localSettings);
-            File.WriteAllText(settingsFileName, json);
+            try
+            {
+                if (!Directory.Exists(settingsFolder))
+                {
+                    Directory.CreateDirectory(settingsFolder);
+                }
+                File.WriteAllText(settingsFileName, json);
+            }
+            catch 
+            {
+                //Pretent nothing happened.
+            }
         }
     }
 }
