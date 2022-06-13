@@ -13,7 +13,7 @@ using Windows.Storage;
 
 namespace RadioParadisePlayer.Logic
 {
-    internal class Player : INotifyPropertyChanged
+    internal sealed class Player : INotifyPropertyChanged
     {
         private const int PlayerTimerGranularity = 250;
 
@@ -142,17 +142,32 @@ namespace RadioParadisePlayer.Logic
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged(string propertyName)
+        void OnPropertyChanged(string propertyName)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
+        private async void Error(Exception x)
+        {
+            await StopAsync();
+            OnError(x);
+        }
+
+        public event Action<Exception> OnError; 
+
         private void PlaySong()
         {
-            var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(CurrentSong.Gapless_Url));
-            mPlayer.Source = source;
-            mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(CurrentSong.Cue);
-            mPlayer.Play();
+            try
+            {
+                var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(CurrentSong.Gapless_Url));
+                mPlayer.Source = source;
+                mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(CurrentSong.Cue);
+                mPlayer.Play();
+            }
+            catch (Exception x)
+            {
+                Error(x);
+            }
         }
 
         private void MoveToNextSong()
@@ -183,7 +198,6 @@ namespace RadioParadisePlayer.Logic
             while (!cancellation.IsCancellationRequested)
             {
                 await Task.Delay(PlayerTimerGranularity);
-                //dispatcherQueue.TryEnqueue(() => CurrentSongProgress += PlayerTimerGranularity);
                 dispatcherQueue.TryEnqueue(() => CurrentSongProgress = (int)mPlayer.PlaybackSession.Position.TotalMilliseconds); ;
             }
         }
@@ -217,11 +231,18 @@ namespace RadioParadisePlayer.Logic
         {
             dispatcherQueue.TryEnqueue(async () =>
             {
-                MoveToNextSong();
-                if (currentSongIndex >= currentPlaylist.Songs.Count)
+                try
                 {
-                    await LoadPlaylist();
                     MoveToNextSong();
+                    if (currentSongIndex >= currentPlaylist.Songs.Count)
+                    {
+                        await LoadPlaylist();
+                        MoveToNextSong();
+                    }
+                }
+                catch (Exception x)
+                {
+                    Error(x);
                 }
             });
         }
@@ -229,16 +250,26 @@ namespace RadioParadisePlayer.Logic
         public async Task PlayAsync()
         {
             IsLoading = true;
-            if (User is null)
+            try
             {
-                User = await RpApiClient.AuthenticateAsync();
+                if (User is null)
+                {
+                    User = await RpApiClient.AuthenticateAsync();
+                }
+                ctsPlayer = new CancellationTokenSource();
+                await LoadPlaylist();
+                MoveToNextSong();
+                playerTask = Task.Run(async () => await PlayerWoker(ctsPlayer.Token));
+                IsPlaying = true;
             }
-            ctsPlayer = new CancellationTokenSource();
-            await LoadPlaylist();
-            MoveToNextSong();
-            playerTask = Task.Run(async () => await PlayerWoker(ctsPlayer.Token));
-            IsLoading = false;
-            IsPlaying = true;
+            catch (Exception x)
+            {
+                Error(x);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
         }
 
         public async Task StopAsync()

@@ -18,6 +18,7 @@
     <None Remove="Assets\logo_180x160.png" />
     <None Remove="Assets\logo_290x85.png" />
     <None Remove="Assets\logo_512x512.png" />
+    <None Remove="ErrorPage.xaml" />
     <None Remove="LogoPage.xaml" />
     <None Remove="PlayerPage.xaml" />
     <None Remove="SettingsPage.xaml" />
@@ -50,6 +51,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Api Documentation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="ErrorPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="LogoPage.xaml">

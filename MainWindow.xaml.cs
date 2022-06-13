@@ -65,9 +65,15 @@ namespace RadioParadisePlayer
             ExtendsContentIntoTitleBar = true;
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
             player = new Logic.Player();
+            player.OnError += Player_OnError;
 
             int theme = (App.Current as App).AppConfig.ReadValue<int>("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;
+        }
+
+        private void Player_OnError(Exception obj)
+        {
+            nvFrame.Navigate(typeof(ErrorPage), obj);
         }
 
         private async void navigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
