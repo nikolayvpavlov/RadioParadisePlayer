@@ -60,5 +60,7 @@ namespace RadioParadisePlayer
         private Window m_window;
 
         public AppConfig AppConfig { get; private set; }
+
+        public Window Window => m_window;
     }
 }

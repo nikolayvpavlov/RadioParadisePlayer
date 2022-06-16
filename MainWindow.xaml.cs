@@ -15,6 +15,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using Microsoft.UI.Windowing;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,6 +27,8 @@ namespace RadioParadisePlayer
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        AppWindow appWindow;
+
         Logic.Player player = null;
         Logic.Player Player
         {
@@ -33,7 +36,7 @@ namespace RadioParadisePlayer
             {
                 return player;
             }
-        }
+        }        
 
         SettingsViewModel vmSettings;
         SettingsViewModel SettingsViewModel
@@ -59,6 +62,17 @@ namespace RadioParadisePlayer
             }
         }
 
+        private AppWindow getAppWindow()
+        {
+            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
+
+            // Retrieve the WindowId that corresponds to hWnd.
+            Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
+
+            // Lastly, retrieve the AppWindow for the current (XAML) WinUI 3 window.
+            return AppWindow.GetFromWindowId(windowId);
+        }
+
         public MainWindow()
         {
             this.InitializeComponent();
@@ -66,6 +80,11 @@ namespace RadioParadisePlayer
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
             player = new Logic.Player();
             player.OnError += Player_OnError;
+
+            Title = "Radio Paradise Player";
+
+            appWindow = XamlHelpers.GetAppWindowForCurrentWindow();
+            //appWindow.SetIcon            
 
             int theme = (App.Current as App).AppConfig.ReadValue<int>("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;

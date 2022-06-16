@@ -84,7 +84,7 @@ namespace RadioParadisePlayer.Logic
                 {
                     slideshowEnabled = value;
                     OnPropertyChanged(nameof(SlideshowEnabled));
-                    if (isPlaying) slideshowTimer.Enabled = slideshowEnabled;
+                    if (isPlaying) slideshowTimer.Enabled = SlideshowEnabled;
                     (App.Current as App).AppConfig.WriteValue("SlideShow", slideshowEnabled);
                 }
             }

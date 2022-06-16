@@ -1,4 +1,5 @@
-﻿using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -38,6 +39,8 @@ namespace RadioParadisePlayer
         SemaphoreSlim semaphoreCoverSlideshowOne;
         SemaphoreSlim semaphoreCoverSlideshowTwo;
 
+        AppWindow appWindow;
+
         public PlayerPage()
         {
             this.InitializeComponent();
@@ -51,6 +54,8 @@ namespace RadioParadisePlayer
             semaphoreCoverArtImage = new SemaphoreSlim(1);
             semaphoreCoverSlideshowOne = new SemaphoreSlim(1);
             semaphoreCoverSlideshowTwo = new SemaphoreSlim(1);
+
+            appWindow = XamlHelpers.GetAppWindowForCurrentWindow();
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -63,7 +68,7 @@ namespace RadioParadisePlayer
             {
                 Player_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("CurrentSlideshowPictureUrl"));
                 Player_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("CurrentSong"));
-            }
+            }            
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -94,6 +99,11 @@ namespace RadioParadisePlayer
                 case "CurrentSlideshowPictureUrl":
                     try
                     {
+                        if ((appWindow.Presenter as OverlappedPresenter).State == OverlappedPresenterState.Minimized)
+                        {
+                            //Don't download images if we're minimized.
+                            break;
+                        }
                         var stream = await Api.RpApiClient.DownloadImageAsync(Player.CurrentSlideshowPictureUrl);
                         if (imgSlideshowOne.Opacity == 0)
                         {
