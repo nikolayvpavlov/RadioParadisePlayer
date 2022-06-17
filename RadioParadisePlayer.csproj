@@ -14,6 +14,10 @@
 	<WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
   <ItemGroup>
+    <Content Remove="Assets\rp_icon.ico" />
+    <Content Remove="Assets\rp_icon.png" />
+  </ItemGroup>
+  <ItemGroup>
     <None Remove="Assets\logo_1400x1400.png" />
     <None Remove="Assets\logo_180x160.png" />
     <None Remove="Assets\logo_290x85.png" />
@@ -49,6 +53,14 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Api Documentation\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Assets\rp_icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Assets\rp_icon.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Page Update="ErrorPage.xaml">

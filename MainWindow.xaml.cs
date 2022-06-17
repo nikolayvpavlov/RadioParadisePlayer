@@ -76,18 +76,27 @@ namespace RadioParadisePlayer
         public MainWindow()
         {
             this.InitializeComponent();
-            ExtendsContentIntoTitleBar = true;
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
             player = new Logic.Player();
             player.OnError += Player_OnError;
 
             Title = "Radio Paradise Player";
 
-            appWindow = XamlHelpers.GetAppWindowForCurrentWindow();
-            //appWindow.SetIcon            
-
+            appWindow = XamlHelpers.GetAppWindowForWindow(this);
+            appWindow.SetIcon("Assets/rp_icon.ico");
+            if (AppWindowTitleBar.IsCustomizationSupported())
+            {
+                appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            }
+            appWindow.Closing += AppWindow_Closing;
             int theme = (App.Current as App).AppConfig.ReadValue<int>("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;
+        }
+
+        private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+        {
+            nvFrame.Navigate(typeof(LogoPage));
+            if (Player is not null) await Player.StopAsync();
         }
 
         private void Player_OnError(Exception obj)
@@ -115,8 +124,7 @@ namespace RadioParadisePlayer
 
         private async void Window_Closed(object sender, WindowEventArgs args)
         {
-            nvFrame.Navigate(typeof(LogoPage));
-            if (Player is not null) await Player.StopAsync();
+            
         }
     }
 }

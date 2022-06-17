@@ -55,7 +55,7 @@ namespace RadioParadisePlayer
             semaphoreCoverSlideshowOne = new SemaphoreSlim(1);
             semaphoreCoverSlideshowTwo = new SemaphoreSlim(1);
 
-            appWindow = XamlHelpers.GetAppWindowForCurrentWindow();
+            appWindow = XamlHelpers.GetAppWindowForWindow(XamlHelpers.GetWindow());
         }
 
         protected override async void OnNavigatedTo(NavigationEventArgs e)
