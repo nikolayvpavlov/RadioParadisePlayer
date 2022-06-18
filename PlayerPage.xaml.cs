@@ -99,7 +99,7 @@ namespace RadioParadisePlayer
                 case "CurrentSlideshowPictureUrl":
                     try
                     {
-                        if ((appWindow.Presenter as OverlappedPresenter).State == OverlappedPresenterState.Minimized)
+                        if ((appWindow?.Presenter as OverlappedPresenter)?.State == OverlappedPresenterState.Minimized)
                         {
                             //Don't download images if we're minimized.
                             break;
@@ -158,6 +158,13 @@ namespace RadioParadisePlayer
                 spPlayerInfo.Children.Add(gridInfo);
                 (toggleInfo.Content as FontIcon).Glyph = "\xE70d";
             }
+        }
+
+        private async void Flyout_Opening(object sender, object e)
+        {
+            await Player.LoadCurrentSongInfoAsync();
+            //await wvSongInfo.EnsureCoreWebView2Async();
+            //wvSongInfo.NavigateToString(Player.SongInfo.SongWikiInfo);            
         }
     }
 }

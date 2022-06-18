@@ -89,10 +89,6 @@ namespace RadioParadisePlayer
                 default:
                     throw new ArgumentOutOfRangeException("Theme option not supported.");
             }
-            if (rbAppTheme.SelectedIndex >= 0)
-            {
-                (App.Current as App).AppConfig.WriteValue("AppTheme", rbAppTheme.SelectedIndex);
-            }
         }
     }
 }

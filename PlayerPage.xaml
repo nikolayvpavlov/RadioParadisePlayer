@@ -71,6 +71,7 @@
                                 <Style TargetType="FlyoutPresenter">
                                     <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
                                     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                                    <Setter Property="BorderThickness" Value="2"/>
                                 </Style>
                             </Flyout.FlyoutPresenterStyle>
                             <Image x:Name="imgCoverArtBig" Stretch="UniformToFill" Source="{x:Bind BitmapImageCoverArt}" />
@@ -78,7 +79,38 @@
                     </Button.Flyout>
                 </Button>
 
-                <TextBlock Text="{x:Bind Player.CurrentSong.Title, Mode=OneWay}" Grid.Column="1" Grid.Row="0" FontSize="24" Foreground="White" />
+                <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Spacing="16">
+                    <TextBlock Text="{x:Bind Player.CurrentSong.Title, Mode=OneWay}" FontSize="24" Foreground="White" />
+                    <Button BorderThickness="0" BorderBrush="Transparent" Padding="4,4,4,4"
+                            Foreground="White" Background="Transparent" VerticalAlignment="Top">
+                        <Button.Content>
+                            <FontIcon Glyph="&#xE90B;" Foreground="White" FontSize="20"/>
+                        </Button.Content>
+                        <Button.Flyout>
+                            <Flyout Opening="Flyout_Opening">
+                                <Flyout.FlyoutPresenterStyle>
+                                    <Style TargetType="FlyoutPresenter">
+                                        <Setter Property="ScrollViewer.HorizontalScrollMode" Value="Disabled"/>
+                                        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled"/>
+                                        <Setter Property="Background" Value="{StaticResource CustomAcrylicBrush}"/>
+                                        <Setter Property="BorderThickness" Value="2"/>
+                                    </Style>
+                                </Flyout.FlyoutPresenterStyle>
+                                <Grid>
+                                    <ProgressRing x:Name="progressRingSongInfo" IsActive="{x:Bind Player.SongInfo.IsLoading, Mode=OneWay}" />
+                                    <Grid ColumnDefinitions="*" 
+                                          Visibility="{x:Bind Player.SongInfo.IsLoading, Mode=OneWay, Converter={StaticResource NotBoolToVisibilityConverterKey}}">
+                                        <StackPanel Grid.Column="0" Orientation="Vertical">
+                                            <TextBlock Style="{ThemeResource SubheaderTextBlockStyle}">Lyrics</TextBlock>
+                                            <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{x:Bind Player.SongInfo.SongLyrics, Mode=OneWay}" />
+                                        </StackPanel>
+                                    </Grid>
+                                </Grid>
+                            </Flyout>
+                        </Button.Flyout>
+                    </Button>
+
+                </StackPanel>
                 <TextBlock Text="{x:Bind Player.CurrentSong.Artist, Mode=OneWay}" Grid.Column="1" Grid.Row="1" FontSize="18" Foreground="White" />
                 <TextBlock Text="{x:Bind Player.CurrentSong.Album, Mode=OneWay}" Grid.Column="1" Grid.Row="2" FontSize="18" Foreground="White" />
 

@@ -77,11 +77,27 @@ namespace RadioParadisePlayer.Logic
                 {
                     appTheme = value;
                     OnPropertyChanged(nameof(AppTheme));
+                    (App.Current as App).AppConfig.WriteValue("AppTheme", (int)AppTheme);
                 }
                 appTheme = value; 
             }
         }
 
+        private bool autoPlay;
+
+        public bool AutoPlay
+        {
+            get { return autoPlay; }
+            set
+            {
+                if (autoPlay != value)
+                {
+                    autoPlay = value;
+                    OnPropertyChanged(nameof(AutoPlay));
+                    (App.Current as App).AppConfig.WriteValue("AutoPlay", autoPlay);
+                }
+            }
+        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 

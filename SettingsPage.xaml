@@ -30,6 +30,20 @@
                         CornerRadius="{ThemeResource HyperlinkFocusRectCornerRadius}"
                         Padding="{ThemeResource ExpanderHeaderPadding}">
                     <StackPanel Orientation="Horizontal" Grid.Column="0" >
+                        <FontIcon Glyph="&#xEC58;" Margin="0,0,16,0" />
+                        <TextBlock Text="Start music immediately" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <ToggleSwitch x:Name="tsAutoPlay" HorizontalAlignment="Right" Grid.Column="1" FlowDirection="RightToLeft" Margin="0,0,16,0" 
+                              IsOn="{x:Bind vmSettings.AutoPlay, Mode=TwoWay}"/>
+                </Grid>
+                <Grid HorizontalAlignment="Stretch" Height="48" 
+                  ColumnDefinitions="*,Auto"
+                        Background="{ThemeResource ExpanderHeaderBackground}"
+                        BorderBrush="{ThemeResource ExpanderHeaderBorderBrush}"
+                        BorderThickness="{ThemeResource ExpanderHeaderBorderThickness}"
+                        CornerRadius="{ThemeResource HyperlinkFocusRectCornerRadius}"
+                        Padding="{ThemeResource ExpanderHeaderPadding}">
+                    <StackPanel Orientation="Horizontal" Grid.Column="0" >
                         <FontIcon Glyph="&#xE786;" Margin="0,0,16,0" />
                         <TextBlock Text="Slideshow" VerticalAlignment="Center"/>
                     </StackPanel>

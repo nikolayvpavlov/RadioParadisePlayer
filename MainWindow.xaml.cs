@@ -91,6 +91,13 @@ namespace RadioParadisePlayer
             appWindow.Closing += AppWindow_Closing;
             int theme = (App.Current as App).AppConfig.ReadValue<int>("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;
+
+            bool autoPlay = (App.Current as App).AppConfig.ReadValue<bool>("AutoPlay", false);
+            SettingsViewModel.AutoPlay = autoPlay;
+            if (autoPlay)
+            {
+                nvFrame.Navigate(typeof(PlayerPage), Player, new EntranceNavigationTransitionInfo());
+            }
         }
 
         private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
@@ -120,11 +127,6 @@ namespace RadioParadisePlayer
             {
                 nvFrame.Navigate(typeof(SettingsPage), SettingsViewModel, new EntranceNavigationTransitionInfo());
             }
-        }
-
-        private async void Window_Closed(object sender, WindowEventArgs args)
-        {
-            
         }
     }
 }

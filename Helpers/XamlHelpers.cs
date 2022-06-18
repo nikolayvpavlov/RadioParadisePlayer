@@ -19,6 +19,7 @@ namespace RadioParadisePlayer.Helpers
 
         public static AppWindow GetAppWindowForWindow(Window window)
         {
+            if (window == null) return null;
             IntPtr hWnd = WindowNative.GetWindowHandle(window);
             WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
             return AppWindow.GetFromWindowId(wndId);
