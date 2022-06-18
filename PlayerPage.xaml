@@ -100,8 +100,9 @@
                                     <ProgressRing x:Name="progressRingSongInfo" IsActive="{x:Bind Player.SongInfo.IsLoading, Mode=OneWay}" />
                                     <Grid ColumnDefinitions="*" 
                                           Visibility="{x:Bind Player.SongInfo.IsLoading, Mode=OneWay, Converter={StaticResource NotBoolToVisibilityConverterKey}}">
-                                        <StackPanel Grid.Column="0" Orientation="Vertical">
+                                        <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="8">
                                             <TextBlock Style="{ThemeResource SubheaderTextBlockStyle}">Lyrics</TextBlock>
+                                            <Rectangle Height="2" Stretch="Fill" StrokeThickness="2" Stroke="{ThemeResource AccentFillColorDefaultBrush}" />
                                             <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{x:Bind Player.SongInfo.SongLyrics, Mode=OneWay}" />
                                         </StackPanel>
                                     </Grid>

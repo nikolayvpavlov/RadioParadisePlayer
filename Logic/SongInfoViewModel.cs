@@ -70,8 +70,8 @@ namespace RadioParadisePlayer.Logic
                 songInfo = await RpApiClient.GetSongInfoAsync(song, userId);
 
                 SongLyrics = songInfo.Lyrics
-                    .Replace(@"<br />", Environment.NewLine)
-                    .Replace("\r\r", Environment.NewLine);
+                    .Replace("\r", "")
+                    .Replace(@"<br />", Environment.NewLine);
                 SongWikiInfo = songInfo.WikiHtml;
             }
             catch
