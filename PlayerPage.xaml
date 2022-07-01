@@ -12,7 +12,6 @@
     <Page.Resources>
         <localHelpers:BoolToVisibilityConverter x:Key="BoolToVisibilityConverterKey" />
         <localHelpers:NotBoolToVisibilityConverter x:Key="NotBoolToVisibilityConverterKey" />
-        <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0" TintColor="#FF000000" FallbackColor="#FF000000" />
         <Style x:Key="NakedButtonStyle" TargetType="Button">
             <Setter Property="Template">
                 <Setter.Value>

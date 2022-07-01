@@ -23,9 +23,7 @@
                     <SlideNavigationTransitionInfo Effect="FromLeft" />
                 </NavigationThemeTransition>
             </NavigationView.ContentTransitions>
-            <Frame x:Name="nvFrame">
-
-            </Frame>
+            <Frame x:Name="nvFrame" />
         </NavigationView>
     </Grid>
 </Window>

@@ -5,6 +5,8 @@
     xmlns:local="using:RadioParadisePlayer">
     <Application.Resources>
         <ResourceDictionary>
+            <AcrylicBrush x:Key="CustomAcrylicBrush" TintOpacity="0" TintColor="#FF000000" FallbackColor="#FF000000" />
+            
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
                 <!-- Other merged dictionaries here -->

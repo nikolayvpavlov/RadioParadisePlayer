@@ -13,6 +13,8 @@
 	<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 	<WindowsPackageType>None</WindowsPackageType>
 	<ApplicationIcon>rp_icon.ico</ApplicationIcon>
+	<PlatformTarget>AnyCPU</PlatformTarget>
+	<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
   </PropertyGroup>
   <ItemGroup>
     <Content Remove="Assets\rp_icon.ico" />
@@ -42,8 +44,8 @@
 
   <ItemGroup>
     <PackageReference Include="KlearTouch.MediaPlayer.WinUI" Version="0.7.0-beta" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.197" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.1" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
 

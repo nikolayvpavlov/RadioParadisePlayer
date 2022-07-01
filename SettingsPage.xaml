@@ -116,9 +116,17 @@
 
             <StackPanel Orientation="Vertical" Grid.Column="1" HorizontalAlignment="Stretch">
                 <TextBlock Text="About" Style="{ThemeResource SubtitleTextBlockStyle}" Padding="0, 0, 0, 16"  />
-                <TextBlock>RadioParadise Player for Windows 11
-                <LineBreak />
-                © 2022 Nikolay Pavlov</TextBlock>
+                <TextBlock>
+                    Radio Paradise Player for Windows 11
+                    <LineBreak />
+                    version 1.0
+                    <LineBreak />    
+                    © 2022 Nikolay Pavlov
+                    <LineBreak />
+                </TextBlock>
+                <TextBlock >
+                    <Hyperlink NavigateUri="https://radioparadise.com/">https://www.radioparadise.com/</Hyperlink>
+                </TextBlock>
             </StackPanel>
         </Grid>
     </StackPanel>

@@ -8,8 +8,8 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
-        <StackPanel Orientation="Vertical" Spacing="32">
+    <Grid Background="{StaticResource CustomAcrylicBrush}">
+        <StackPanel Orientation="Vertical" Spacing="32" Padding="16, 16, 16, 16">
             <TextBlock Text="Ops!" Style="{ThemeResource TitleTextBlockStyle}" />
             <TextBlock>
                 We are sorry, but there is a network problem and we cannot play your favorite music.
