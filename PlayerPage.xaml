@@ -30,13 +30,13 @@
         <Image x:Name="imgSlideshowOne" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowOne}" Grid.RowSpan="2" 
                Visibility="{x:Bind Player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>
-                <ScalarTransition Duration="00:00:02" />
+                <ScalarTransition Duration="00:00:05" />
             </Image.OpacityTransition>
         </Image>
         <Image x:Name="imgSlideshowTwo" Opacity="0" Stretch="UniformToFill" Source="{x:Bind BitmapImageSlideshowTwo}" Grid.RowSpan="2"
                Visibility="{x:Bind Player.SlideshowEnabled, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverterKey} }">
             <Image.OpacityTransition>
-                <ScalarTransition Duration="00:00:02" />
+                <ScalarTransition Duration="00:00:05" />
             </Image.OpacityTransition>
         </Image>
         <ProgressRing x:Name="progressRing" Grid.RowSpan="2"                      

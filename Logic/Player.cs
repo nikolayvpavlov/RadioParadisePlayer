@@ -9,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using Windows.Media.Core;
+using Windows.Media.Playback;
 using Windows.Storage;
 
 namespace RadioParadisePlayer.Logic
@@ -19,13 +21,12 @@ namespace RadioParadisePlayer.Logic
 
         private Playlist currentPlaylist;
         private DispatcherQueue dispatcherQueue;
-        private Task playerTask;
-        private CancellationTokenSource ctsPlayer;
         private DispatcherQueueTimer slideshowTimer;
         private DispatcherQueueTimer playerTimer;
         private SongSlideshow currentSongSlideshow;
         private object lockSlideshow = new object();
-        private Microsoft.UI.Media.Playback.MediaPlayer mPlayer;
+        private MediaPlayer mPlayer;
+        private MediaPlaybackList mPlaybackList;
 
         internal static User User { get; private set; } = null;
 
@@ -158,29 +159,44 @@ namespace RadioParadisePlayer.Logic
 
         public event Action<Exception> OnError;
 
-        private void PlaySong()
+        private void PlayerTimer_Ticked(DispatcherQueueTimer sender, object data)
         {
-            try
+            CurrentSongProgress = (int)mPlayer.PlaybackSession.Position.TotalMilliseconds;
+        }
+
+        private void SlideshowTimer_Ticked(DispatcherQueueTimer sender, object data)
+        {
+            lock (lockSlideshow)
             {
-                var source = Microsoft.UI.Media.Core.MediaSource.CreateFromUri(new Uri(CurrentSong.Gapless_Url));
-                mPlayer.Source = source;
-                mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(CurrentSong.Cue);
-                mPlayer.Play();
+                currentSongSlideshow.MoveNext();
+                CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
             }
-            catch (Exception x)
+        }
+
+        private async Task LoadPlaylist()
+        {
+            currentSongIndex = -1;
+            currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString());
+            var mediaItems = currentPlaylist.Songs.Select(song => new MediaPlaybackItem(MediaSource.CreateFromUri(new Uri(song.Gapless_Url)))).ToArray();
+            foreach (var item in mediaItems)
             {
-                Error(x);
-            }
+                _ = item.Source.OpenAsync(); //Eliminate the gap between songs
+                mPlaybackList.Items.Add(item);
+            }            
+        }
+
+        private void StartPlayer()
+        {
+            mPlayer.Play();
+            mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(currentPlaylist.Songs.First().Cue);
         }
 
         private async Task MoveToNextSong()
         {
             SongInfo.Clear();
             currentSongIndex++;
-            if (currentSongIndex >= currentPlaylist.Songs.Count) return;
             CurrentSong = currentPlaylist.Songs[currentSongIndex];
             CurrentSongProgress = CurrentSong.Cue;
-            PlaySong();
             //Reset the slideShow;
             slideshowTimer.Stop();
             lock (lockSlideshow)
@@ -196,28 +212,14 @@ namespace RadioParadisePlayer.Logic
             {
                 slideshowTimer.Stop();
             }
+            //Check if this is the last song.  Load the next playlist, and reset the index to -1.
+            if (currentSongIndex == currentPlaylist.Songs.Count - 1)
+            {
+                await LoadPlaylist();                
+            }
+
             //Last thing: notify the service
             await RpApiClient.NotifyServiceSongStarts(CurrentSong, Channel);
-        }
-
-        private async Task LoadPlaylist()
-        {
-            currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString());
-            currentSongIndex = -1;
-        }
-
-        private void PlayerTimer_Ticked(DispatcherQueueTimer sender, object data)
-        {
-            CurrentSongProgress = (int)mPlayer.PlaybackSession.Position.TotalMilliseconds;
-        }
-
-        private void SlideshowTimer_Ticked(DispatcherQueueTimer sender, object data)
-        {
-            lock (lockSlideshow)
-            {
-                currentSongSlideshow.MoveNext();
-                CurrentSlideshowPictureUrl = currentSongSlideshow.CurrentPictureUrl;
-            }
         }
 
         public Player()
@@ -228,34 +230,38 @@ namespace RadioParadisePlayer.Logic
             slideshowTimer.Tick += SlideshowTimer_Ticked;
 
             playerTimer = dispatcherQueue.CreateTimer();
-            playerTimer.Interval = TimeSpan.FromMilliseconds(250);
+            playerTimer.Interval = TimeSpan.FromMilliseconds(PlayerTimerGranularity);
             playerTimer.Tick += PlayerTimer_Ticked;
 
-            BitRate = (App.Current as App).AppConfig.ReadValue<int>("BitRate", 3);
-            Channel = (App.Current as App).AppConfig.ReadValue<string>("Channel", "0");
-            mPlayer = new() { };
-            Volume = (App.Current as App).AppConfig.ReadValue<double>("Volume", 0.3);
-            mPlayer.MediaEnded += MPlayer_MediaEnded;
+            var app = App.Current as App;
+            BitRate = app.AppConfig.ReadValue<int>("BitRate", 3);
+            Channel = app.AppConfig.ReadValue<string>("Channel", "0");
+
+            mPlaybackList = new()
+            {
+                MaxPlayedItemsToKeepOpen = 2,
+                MaxPrefetchTime = TimeSpan.FromSeconds(3)
+            };
+            mPlaybackList.CurrentItemChanged += MPlaybackList_CurrentItemChanged;
+            mPlayer = new() { Source = mPlaybackList };
+
+            Volume = app.AppConfig.ReadValue<double>("Volume", 0.3);                        
 
             SongInfo = new SongInfoViewModel();
         }
 
-        private void MPlayer_MediaEnded(Microsoft.UI.Media.Playback.MediaPlayer sender, object args)
+        private void MPlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
         {
+            if (args.NewItem is null) return; //We're stopping.  No need to do anything.
             dispatcherQueue.TryEnqueue(async () =>
             {
                 try
                 {
                     await MoveToNextSong();
-                    if (currentSongIndex >= currentPlaylist.Songs.Count)
-                    {
-                        await LoadPlaylist();
-                        await MoveToNextSong();
-                    }
                 }
                 catch (Exception x)
                 {
-                    Error(x);
+                    Error(x.InnerException);
                 }
             });
         }
@@ -270,7 +276,7 @@ namespace RadioParadisePlayer.Logic
                     User = await RpApiClient.AuthenticateAsync();
                 }
                 await LoadPlaylist();
-                await MoveToNextSong();
+                StartPlayer();
                 playerTimer.Start();
                 IsPlaying = true;
             }
@@ -287,10 +293,13 @@ namespace RadioParadisePlayer.Logic
         public async Task StopAsync()
         {
             if (!IsPlaying) return;
-            mPlayer.Pause(); //There is no stop method.
-            slideshowTimer.Stop();
-            playerTimer.Stop();
             IsPlaying = false;
+            mPlayer.Pause(); //There is no stop method.
+            mPlayer.Source = null; //If you don't do that, the next line mPlaybackList.Items.Clear() will essentially block;
+            mPlaybackList.Items.Clear();
+            mPlayer.Source = mPlaybackList;
+            slideshowTimer.Stop();
+            playerTimer.Stop();            
             await RpApiClient.NotifyServiceSongPause((int)mPlayer.PlaybackSession.Position.TotalMilliseconds, CurrentSong, Channel);
         }
 

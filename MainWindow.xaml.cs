@@ -89,10 +89,13 @@ namespace RadioParadisePlayer
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             }
             appWindow.Closing += AppWindow_Closing;
-            int theme = (App.Current as App).AppConfig.ReadValue<int>("AppTheme", 0);
+
+            var app = App.Current as App;
+
+            int theme = app.AppConfig.ReadValue("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;
 
-            bool autoPlay = (App.Current as App).AppConfig.ReadValue<bool>("AutoPlay", false);
+            bool autoPlay = app.AppConfig.ReadValue("AutoPlay", false);
             SettingsViewModel.AutoPlay = autoPlay;
             if (autoPlay)
             {

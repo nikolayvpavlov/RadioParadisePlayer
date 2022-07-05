@@ -162,9 +162,7 @@ namespace RadioParadisePlayer
 
         private async void Flyout_Opening(object sender, object e)
         {
-            await Player.LoadCurrentSongInfoAsync();
-            //await wvSongInfo.EnsureCoreWebView2Async();
-            //wvSongInfo.NavigateToString(Player.SongInfo.SongWikiInfo);            
+            await Player.LoadCurrentSongInfoAsync();          
         }
     }
 }
