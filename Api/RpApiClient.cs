@@ -88,7 +88,7 @@ namespace RadioParadisePlayer.Api
 
         public static async Task NotifyServiceSongPause(int positionMs, Song song, string channel)
         {
-            var url = String.Format(urlSongPauses, positionMs, PlayerId, song.Event_Id, channel, SourceId);
+            var url = String.Format(urlSongPauses, positionMs, PlayerId, song?.Event_Id, channel, SourceId);
             try
             {
                 var response = await httpClient.GetAsync(url);

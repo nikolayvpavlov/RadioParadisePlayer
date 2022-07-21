@@ -126,6 +126,7 @@
                 </TextBlock>
                 <TextBlock >
                     <Hyperlink NavigateUri="https://radioparadise.com/">https://www.radioparadise.com/</Hyperlink>
+                    <LineBreak />
                 </TextBlock>
             </StackPanel>
         </Grid>

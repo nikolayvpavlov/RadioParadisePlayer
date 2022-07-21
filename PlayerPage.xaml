@@ -100,7 +100,7 @@
                                     <Grid ColumnDefinitions="*" 
                                           Visibility="{x:Bind Player.SongInfo.IsLoading, Mode=OneWay, Converter={StaticResource NotBoolToVisibilityConverterKey}}">
                                         <StackPanel Grid.Column="0" Orientation="Vertical" Spacing="8">
-                                            <TextBlock Style="{ThemeResource SubheaderTextBlockStyle}">Lyrics</TextBlock>
+                                            <TextBlock Style="{ThemeResource SubheaderTextBlockStyle}" Text="{x:Bind Player.CurrentSong.Title, Mode=OneWay}" />
                                             <Rectangle Height="2" Stretch="Fill" StrokeThickness="2" Stroke="{ThemeResource AccentFillColorDefaultBrush}" />
                                             <TextBlock Style="{ThemeResource BaseTextBlockStyle}" Text="{x:Bind Player.SongInfo.SongLyrics, Mode=OneWay}" />
                                         </StackPanel>
@@ -118,7 +118,7 @@
                         BorderThickness="0" BorderBrush="Transparent" Padding="4,4,4,4"
                         Foreground="White" Background="Transparent">
                     <Button.Content>
-                        <FontIcon Glyph="&#xE767;" Foreground="White" FontSize="11"/>
+                        <FontIcon Glyph="&#xE767;" Foreground="White" FontSize="12"/>
                     </Button.Content>
                     <Button.Flyout>
                         <Flyout>

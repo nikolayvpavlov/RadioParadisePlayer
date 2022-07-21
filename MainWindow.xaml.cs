@@ -88,7 +88,7 @@ namespace RadioParadisePlayer
             {
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             }
-            appWindow.Closing += AppWindow_Closing;
+            appWindow.Closing += AppWindow_Closing;            
 
             var app = App.Current as App;
 

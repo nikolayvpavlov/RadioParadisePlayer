@@ -178,11 +178,14 @@ namespace RadioParadisePlayer.Logic
             currentSongIndex = -1;
             currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString());
             var mediaItems = currentPlaylist.Songs.Select(song => new MediaPlaybackItem(MediaSource.CreateFromUri(new Uri(song.Gapless_Url)))).ToArray();
+            List<Task> tasks = new ();
             foreach (var item in mediaItems)
             {
-                _ = item.Source.OpenAsync(); //Eliminate the gap between songs
+                var t = item.Source.OpenAsync().AsTask(); //Eliminate the gap between songs
+                tasks.Add(t);
                 mPlaybackList.Items.Add(item);
-            }            
+            }
+            await Task.WhenAll(tasks); //We need to do this to catch possible errors of Source.OpenAsync
         }
 
         private void StartPlayer()
