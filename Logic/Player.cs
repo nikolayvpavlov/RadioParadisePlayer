@@ -154,7 +154,7 @@ namespace RadioParadisePlayer.Logic
         private async void Error(Exception x)
         {
             await StopAsync();
-            OnError(x);
+            OnError?.Invoke(x);
         }
 
         public event Action<Exception> OnError;
@@ -271,6 +271,7 @@ namespace RadioParadisePlayer.Logic
 
         public async Task PlayAsync()
         {
+            if (IsPlaying || IsLoading) return;
             IsLoading = true;
             try
             {
