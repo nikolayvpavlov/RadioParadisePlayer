@@ -11,7 +11,7 @@ namespace RadioParadisePlayer.Api
 {
     class RpApiClient
     {
-        const string urlPlaylist = @"https://api.radioparadise.com/api/gapless?C_user_id={0}&player_id={1}&chan={2}&bitrate={3}&source={4}";
+        const string urlPlaylist = @"https://api.radioparadise.com/api/gapless?C_user_id={0}&player_id={1}&chan={2}&bitrate={3}&source={4}&event={5}";
         const string urlAuth = @"https://api.radioparadise.com/api/auth";
         const string urlChannels = @"https://api.radioparadise.com/api/list_chan?C_user_id={0}";
         const string urlSongStarts = @"https://api.radioparadise.com/api/update_history?song_id={0}&chan{1}&source{2}&player_id={3}&event={4}";
@@ -40,9 +40,9 @@ namespace RadioParadisePlayer.Api
             else return null;
         }
 
-        public static async Task<Playlist> GetPlaylistAsync(string userId, string channel, string bitrate)
+        public static async Task<Playlist> GetPlaylistAsync(string userId, string channel, string bitrate, string eventId)
         {
-            var url = String.Format(urlPlaylist, userId, PlayerId, channel, bitrate, SourceId);
+            var url = String.Format(urlPlaylist, userId, PlayerId, channel, bitrate, SourceId, eventId);
             var response = await httpClient.GetAsync(url);
             if (response.IsSuccessStatusCode)
             {

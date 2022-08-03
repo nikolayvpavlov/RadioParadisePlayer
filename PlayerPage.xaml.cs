@@ -68,7 +68,7 @@ namespace RadioParadisePlayer
             {
                 Player_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("CurrentSlideshowPictureUrl"));
                 Player_PropertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs("CurrentSong"));
-            }            
+            }
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -108,19 +108,34 @@ namespace RadioParadisePlayer
                         if (imgSlideshowOne.Opacity == 0)
                         {
                             await semaphoreCoverSlideshowOne.WaitAsync();
-                            await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
-                            imgSlideshowOne.Opacity = 1;
-                            imgSlideshowTwo.Opacity = 0;
+                            try
+                            {
+                                await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
+                                imgSlideshowOne.Opacity = 1;
+                                imgSlideshowTwo.Opacity = 0;
+                            }
+                            catch (AggregateException)
+                            {
+                                //Ignore it.  Something went wrong with loading the image
+                            }
                         }
                         else
                         {
                             await semaphoreCoverSlideshowTwo.WaitAsync();
-                            await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
-                            imgSlideshowOne.Opacity = 0;
-                            imgSlideshowTwo.Opacity = 1;
+                            try
+                            {
+
+                                await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
+                                imgSlideshowOne.Opacity = 0;
+                                imgSlideshowTwo.Opacity = 1;
+                            }
+                            catch (AggregateException)
+                            {
+                                //Ignore it.  Something went wrong with loading the image
+                            }
                         }
                     }
-                    catch (HttpRequestException) 
+                    catch (HttpRequestException)
                     {
                         //Do nothing. Just ignore this.
                     }
@@ -128,13 +143,21 @@ namespace RadioParadisePlayer
 
                 case "CurrentSong":
                     await semaphoreCoverArtImage.WaitAsync();
-                    await LoadCoverArtAsync();
+                    try
+                    {
+                        await LoadCoverArtAsync();
+                    }
+                    catch (AggregateException x)
+                    {
+                        //Ignore it.  Something went wrong with loading the image
+                    }
                     break;
             }
         }
 
         private async Task LoadCoverArtAsync()
         {
+            if (String.IsNullOrEmpty(Player.CurrentSongCoverArtPictureUrl)) return;
             try
             {
                 var stream = await Api.RpApiClient.DownloadImageAsync("https:" + Player.CurrentSongCoverArtPictureUrl);
@@ -162,7 +185,7 @@ namespace RadioParadisePlayer
 
         private async void Flyout_Opening(object sender, object e)
         {
-            await Player.LoadCurrentSongInfoAsync();          
+            await Player.LoadCurrentSongInfoAsync();
         }
     }
 }

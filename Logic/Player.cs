@@ -95,7 +95,7 @@ namespace RadioParadisePlayer.Logic
         private int currentSongIndex;
         private Song currentSong;
 
-        public string CurrentSongCoverArtPictureUrl => currentPlaylist?.Image_Base + currentSong.Cover_Art;
+        public string CurrentSongCoverArtPictureUrl => currentPlaylist?.Image_Base + currentSong?.Cover_Art;
 
         public Song CurrentSong
         {
@@ -175,8 +175,9 @@ namespace RadioParadisePlayer.Logic
 
         private async Task LoadPlaylist()
         {
+            int currentEventId = currentPlaylist?.Current_Event_Id ?? 0;
+            currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString(), currentEventId.ToString());
             currentSongIndex = -1;
-            currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString());
             var mediaItems = currentPlaylist.Songs.Select(song => new MediaPlaybackItem(MediaSource.CreateFromUri(new Uri(song.Gapless_Url)))).ToArray();
             List<Task> tasks = new ();
             foreach (var item in mediaItems)
@@ -303,7 +304,9 @@ namespace RadioParadisePlayer.Logic
             mPlaybackList.Items.Clear();
             mPlayer.Source = mPlaybackList;
             slideshowTimer.Stop();
-            playerTimer.Stop();            
+            playerTimer.Stop();
+            currentPlaylist = null;
+            CurrentSong = null;
             await RpApiClient.NotifyServiceSongPause((int)mPlayer.PlaybackSession.Position.TotalMilliseconds, CurrentSong, Channel);
         }
 
