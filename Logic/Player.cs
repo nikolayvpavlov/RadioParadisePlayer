@@ -175,7 +175,7 @@ namespace RadioParadisePlayer.Logic
 
         private async Task LoadPlaylist()
         {
-            int currentEventId = currentPlaylist?.Current_Event_Id ?? 0;
+            int currentEventId = CurrentSong?.Event_Id ?? 0;
             currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString(), currentEventId.ToString());
             currentSongIndex = -1;
             var mediaItems = currentPlaylist.Songs.Select(song => new MediaPlaybackItem(MediaSource.CreateFromUri(new Uri(song.Gapless_Url)))).ToArray();
