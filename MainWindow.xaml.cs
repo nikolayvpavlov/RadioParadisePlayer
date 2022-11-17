@@ -16,6 +16,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Microsoft.UI.Windowing;
+using WinRT;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -76,6 +77,7 @@ namespace RadioParadisePlayer
         public MainWindow()
         {
             this.InitializeComponent();
+
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
             player = new Logic.Player();
             player.OnError += Player_OnError;

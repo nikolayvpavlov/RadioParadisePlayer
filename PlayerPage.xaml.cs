@@ -71,23 +71,23 @@ namespace RadioParadisePlayer
             }
         }
 
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        protected async override void OnNavigatedFrom(NavigationEventArgs e)
         {
             this.Player.PropertyChanged -= Player_PropertyChanged;
             base.OnNavigatedFrom(e);
         }
 
-        private void BitmapImageSlideshowTwo_ImageOpened(object sender, RoutedEventArgs e)
+        private async void BitmapImageSlideshowTwo_ImageOpened(object sender, RoutedEventArgs e)
         {
             semaphoreCoverSlideshowTwo.Release();
         }
 
-        private void BitmapImageSlideshowOne_ImageOpened(object sender, RoutedEventArgs e)
+        private async void BitmapImageSlideshowOne_ImageOpened(object sender, RoutedEventArgs e)
         {
             semaphoreCoverSlideshowOne.Release();
         }
 
-        private void BitmapImageCoverArt_ImageOpened(object sender, RoutedEventArgs e)
+        private async void BitmapImageCoverArt_ImageOpened(object sender, RoutedEventArgs e)
         {
             semaphoreCoverArtImage.Release();
         }
@@ -147,7 +147,7 @@ namespace RadioParadisePlayer
                     {
                         await LoadCoverArtAsync();
                     }
-                    catch (AggregateException x)
+                    catch (AggregateException)
                     {
                         //Ignore it.  Something went wrong with loading the image
                     }
