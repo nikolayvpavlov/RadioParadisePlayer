@@ -17,6 +17,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Microsoft.UI.Windowing;
 using WinRT;
+using Windows.UI.Popups;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -78,6 +79,8 @@ namespace RadioParadisePlayer
         {
             this.InitializeComponent();
 
+            App.Current.UnhandledException += Global_UnhandledException;
+
             nvFrame.Navigate(typeof(LogoPage), null, new EntranceNavigationTransitionInfo());
             player = new Logic.Player();
             player.OnError += Player_OnError;
@@ -103,6 +106,13 @@ namespace RadioParadisePlayer
             {
                 nvFrame.Navigate(typeof(PlayerPage), Player, new EntranceNavigationTransitionInfo());
             }
+        }
+
+        private async void Global_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+        {
+            var errorDlg = new MessageDialog(e.Message, "Unhandled error");
+            WinRT.Interop.InitializeWithWindow.Initialize(errorDlg, WinRT.Interop.WindowNative.GetWindowHandle(this));
+            await errorDlg.ShowAsync();
         }
 
         private async void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)

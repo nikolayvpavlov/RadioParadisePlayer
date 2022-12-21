@@ -71,23 +71,23 @@ namespace RadioParadisePlayer
             }
         }
 
-        protected async override void OnNavigatedFrom(NavigationEventArgs e)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             this.Player.PropertyChanged -= Player_PropertyChanged;
             base.OnNavigatedFrom(e);
         }
 
-        private async void BitmapImageSlideshowTwo_ImageOpened(object sender, RoutedEventArgs e)
+        private void BitmapImageSlideshowTwo_ImageOpened(object sender, RoutedEventArgs e)
         {
             semaphoreCoverSlideshowTwo.Release();
         }
 
-        private async void BitmapImageSlideshowOne_ImageOpened(object sender, RoutedEventArgs e)
+        private void BitmapImageSlideshowOne_ImageOpened(object sender, RoutedEventArgs e)
         {
             semaphoreCoverSlideshowOne.Release();
         }
 
-        private async void BitmapImageCoverArt_ImageOpened(object sender, RoutedEventArgs e)
+        private void BitmapImageCoverArt_ImageOpened(object sender, RoutedEventArgs e)
         {
             semaphoreCoverArtImage.Release();
         }
