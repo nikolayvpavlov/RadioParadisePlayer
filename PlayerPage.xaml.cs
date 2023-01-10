@@ -110,14 +110,14 @@ namespace RadioParadisePlayer
                             await semaphoreCoverSlideshowOne.WaitAsync();
                             try
                             {
-                                await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());
-                                imgSlideshowOne.Opacity = 1;
-                                imgSlideshowTwo.Opacity = 0;
+                                await BitmapImageSlideshowOne.SetSourceAsync(stream.AsRandomAccessStream());                                
                             }
-                            catch (AggregateException)
+                            catch (OperationCanceledException)
                             {
                                 //Ignore it.  Something went wrong with loading the image
                             }
+                            imgSlideshowOne.Opacity = 1;
+                            imgSlideshowTwo.Opacity = 0;
                         }
                         else
                         {
@@ -126,13 +126,13 @@ namespace RadioParadisePlayer
                             {
 
                                 await BitmapImageSlideshowTwo.SetSourceAsync(stream.AsRandomAccessStream());
-                                imgSlideshowOne.Opacity = 0;
-                                imgSlideshowTwo.Opacity = 1;
                             }
-                            catch (AggregateException)
+                            catch (OperationCanceledException)
                             {
                                 //Ignore it.  Something went wrong with loading the image
                             }
+                            imgSlideshowOne.Opacity = 0;
+                            imgSlideshowTwo.Opacity = 1;
                         }
                     }
                     catch (HttpRequestException)
@@ -147,7 +147,7 @@ namespace RadioParadisePlayer
                     {
                         await LoadCoverArtAsync();
                     }
-                    catch (AggregateException)
+                    catch (OperationCanceledException)
                     {
                         //Ignore it.  Something went wrong with loading the image
                     }

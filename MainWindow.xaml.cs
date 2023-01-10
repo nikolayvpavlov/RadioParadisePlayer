@@ -110,7 +110,11 @@ namespace RadioParadisePlayer
 
         private async void Global_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
         {
-            var errorDlg = new MessageDialog(e.Message, "Unhandled error");
+            var msgText = e.Message
+                          + Environment.NewLine + Environment.NewLine
+                          + e.Exception.StackTrace
+                          ;            
+            var errorDlg = new MessageDialog(msgText, "Unhandled error");
             WinRT.Interop.InitializeWithWindow.Initialize(errorDlg, WinRT.Interop.WindowNative.GetWindowHandle(this));
             await errorDlg.ShowAsync();
         }
