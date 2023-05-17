@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Dispatching;
+using Microsoft.UI.Xaml.Automation;
 using RadioParadisePlayer.Api;
 using RadioParadisePlayer.Helpers;
 using System;
@@ -176,10 +177,20 @@ namespace RadioParadisePlayer.Logic
         private async Task LoadPlaylist()
         {
             int currentEventId = CurrentSong?.Event_Id ?? 0;
-            currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString(), currentEventId.ToString());
+            int attempts = 0;
+            while (true)
+            {
+                currentPlaylist = await RpApiClient.GetPlaylistAsync(User.User_Id, Channel, BitRate.ToString(), currentEventId.ToString());
+                //It is possible to get an "expired" song, where Cue is bigger than the Duration.  This causes the player to stop playing.  Skip them.
+                currentPlaylist.Songs = currentPlaylist.Songs.Where(s => s.Cue < s.Duration).ToList();
+                if (currentPlaylist.Songs.Any()) break;
+                attempts++;
+                if (attempts > 3) currentEventId = 0; //If can't get songs for the current eventId, try with zero.
+            }
             currentSongIndex = -1;
-            var mediaItems = currentPlaylist.Songs.Select(song => new MediaPlaybackItem(MediaSource.CreateFromUri(new Uri(song.Gapless_Url)))).ToArray();
-            List<Task> tasks = new ();
+            var mediaItems = currentPlaylist.Songs
+                .Select(song => new MediaPlaybackItem(MediaSource.CreateFromUri(new Uri(song.Gapless_Url)))).ToArray();
+            List<Task> tasks = new();
             foreach (var item in mediaItems)
             {
                 var t = item.Source.OpenAsync().AsTask(); //Eliminate the gap between songs
@@ -193,6 +204,7 @@ namespace RadioParadisePlayer.Logic
         {
             mPlayer.Play();
             mPlayer.PlaybackSession.Position = TimeSpan.FromMilliseconds(currentPlaylist.Songs.First().Cue);
+            mPlayer.AutoPlay = true;
         }
 
         private async Task MoveToNextSong()
@@ -219,7 +231,7 @@ namespace RadioParadisePlayer.Logic
             //Check if this is the last song.  Load the next playlist, and reset the index to -1.
             if (currentSongIndex == currentPlaylist.Songs.Count - 1)
             {
-                await LoadPlaylist();                
+                await LoadPlaylist();
             }
 
             //Last thing: notify the service
@@ -249,7 +261,7 @@ namespace RadioParadisePlayer.Logic
             mPlaybackList.CurrentItemChanged += MPlaybackList_CurrentItemChanged;
             mPlayer = new() { Source = mPlaybackList };
 
-            Volume = app.AppConfig.ReadValue<double>("Volume", 0.3);                        
+            Volume = app.AppConfig.ReadValue<double>("Volume", 0.3);
 
             SongInfo = new SongInfoViewModel();
         }
@@ -299,6 +311,7 @@ namespace RadioParadisePlayer.Logic
         {
             if (!IsPlaying) return;
             IsPlaying = false;
+            mPlayer.AutoPlay = false;
             mPlayer.Pause(); //There is no stop method.
             mPlayer.Source = null; //If you don't do that, the next line mPlaybackList.Items.Clear() will essentially block;
             mPlaybackList.Items.Clear();
