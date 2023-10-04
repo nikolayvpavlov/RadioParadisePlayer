@@ -163,6 +163,13 @@ namespace RadioParadisePlayer.Logic
         private void PlayerTimer_Ticked(DispatcherQueueTimer sender, object data)
         {
             CurrentSongProgress = (int)mPlayer.PlaybackSession.Position.TotalMilliseconds;
+            //We still have a bug that sometimes the player doesn't start new songs.  No idea why.
+            if (IsPlaying && 
+                (mPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.None ||
+                mPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Paused))
+            {
+                mPlayer.Play();
+            }
         }
 
         private void SlideshowTimer_Ticked(DispatcherQueueTimer sender, object data)
@@ -260,10 +267,24 @@ namespace RadioParadisePlayer.Logic
             };
             mPlaybackList.CurrentItemChanged += MPlaybackList_CurrentItemChanged;
             mPlayer = new() { Source = mPlaybackList };
+            mPlayer.AudioStateMonitor.SoundLevelChanged += AudioStateMonitor_SoundLevelChanged;
 
             Volume = app.AppConfig.ReadValue<double>("Volume", 0.3);
 
             SongInfo = new SongInfoViewModel();
+        }
+
+        private void AudioStateMonitor_SoundLevelChanged(Windows.Media.Audio.AudioStateMonitor sender, object args)
+        {
+            switch (sender.SoundLevel)
+            {
+                case Windows.Media.SoundLevel.Low:
+                    break;
+                case Windows.Media.SoundLevel.Muted:
+                    break;
+                case Windows.Media.SoundLevel.Full:
+                    break;
+            }
         }
 
         private void MPlaybackList_CurrentItemChanged(MediaPlaybackList sender, CurrentMediaPlaybackItemChangedEventArgs args)
@@ -277,6 +298,7 @@ namespace RadioParadisePlayer.Logic
                 }
                 catch (Exception x)
                 {
+                    await StopAsync();
                     Error(x.InnerException);
                 }
             });
@@ -309,15 +331,15 @@ namespace RadioParadisePlayer.Logic
 
         public async Task StopAsync()
         {
-            if (!IsPlaying) return;
             IsPlaying = false;
+            slideshowTimer.Stop();
+            playerTimer.Stop();
+            if (!IsPlaying) return;            
             mPlayer.AutoPlay = false;
             mPlayer.Pause(); //There is no stop method.
             mPlayer.Source = null; //If you don't do that, the next line mPlaybackList.Items.Clear() will essentially block;
             mPlaybackList.Items.Clear();
             mPlayer.Source = mPlaybackList;
-            slideshowTimer.Stop();
-            playerTimer.Stop();
             currentPlaylist = null;
             CurrentSong = null;
             await RpApiClient.NotifyServiceSongPause((int)mPlayer.PlaybackSession.Position.TotalMilliseconds, CurrentSong, Channel);
@@ -327,7 +349,7 @@ namespace RadioParadisePlayer.Logic
         {
             if (bitRate < 0 && bitRate > 4)
             {
-                throw new ArgumentOutOfRangeException("BitRate must be between 0 and 4");
+                throw new ArgumentOutOfRangeException(nameof(bitRate), "BitRate must be between 0 and 4");
             }
             if (IsPlaying)
             {
