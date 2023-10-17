@@ -331,17 +331,16 @@ namespace RadioParadisePlayer.Logic
 
         public async Task StopAsync()
         {
-            IsPlaying = false;
             slideshowTimer.Stop();
             playerTimer.Stop();
-            if (!IsPlaying) return;            
             mPlayer.AutoPlay = false;
             mPlayer.Pause(); //There is no stop method.
             mPlayer.Source = null; //If you don't do that, the next line mPlaybackList.Items.Clear() will essentially block;
             mPlaybackList.Items.Clear();
             mPlayer.Source = mPlaybackList;
             currentPlaylist = null;
-            CurrentSong = null;
+            IsPlaying = false;
+            CurrentSong = null;            
             await RpApiClient.NotifyServiceSongPause((int)mPlayer.PlaybackSession.Position.TotalMilliseconds, CurrentSong, Channel);
         }
 
