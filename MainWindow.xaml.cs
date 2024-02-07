@@ -18,6 +18,12 @@ using System.Threading.Tasks;
 using Microsoft.UI.Windowing;
 using WinRT;
 using Windows.UI.Popups;
+using Windows.Graphics;
+using Windows.Devices.PointOfService;
+using Windows.Graphics.Display;
+using Windows.Devices.Display;
+using Windows.Devices.Enumeration;
+using Windows.Devices.Display.Core;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -30,6 +36,7 @@ namespace RadioParadisePlayer
     public sealed partial class MainWindow : Window
     {
         AppWindow appWindow;
+        App app;
 
         Logic.Player player = null;
         Logic.Player Player
@@ -38,7 +45,7 @@ namespace RadioParadisePlayer
             {
                 return player;
             }
-        }        
+        }
 
         SettingsViewModel vmSettings;
         SettingsViewModel SettingsViewModel
@@ -59,20 +66,9 @@ namespace RadioParadisePlayer
             switch (e.PropertyName)
             {
                 case "AppTheme":
-                    (Content as Grid).RequestedTheme = vmSettings.AppTheme; 
+                    (Content as Grid).RequestedTheme = vmSettings.AppTheme;
                     break;
             }
-        }
-
-        private AppWindow getAppWindow()
-        {
-            var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(this);
-
-            // Retrieve the WindowId that corresponds to hWnd.
-            Microsoft.UI.WindowId windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hWnd);
-
-            // Lastly, retrieve the AppWindow for the current (XAML) WinUI 3 window.
-            return AppWindow.GetFromWindowId(windowId);
         }
 
         public MainWindow()
@@ -93,9 +89,31 @@ namespace RadioParadisePlayer
             {
                 appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             }
-            appWindow.Closing += AppWindow_Closing;            
+            appWindow.Closing += AppWindow_Closing;
 
-            var app = App.Current as App;
+            app = App.Current as App;
+
+            var da = DisplayArea.GetFromWindowId(appWindow.Id, DisplayAreaFallback.Primary);
+
+            var windowSizeW = app.AppConfig.ReadValue("WindowSizeWidth", 0);
+            var windowSizeH = app.AppConfig.ReadValue("WindowSizeHeight", 0);
+            if (windowSizeW > 0 && da.WorkArea.Width > windowSizeW &&
+                windowSizeH > 0 && da.WorkArea.Height > windowSizeH)
+            {
+                appWindow.Resize(new SizeInt32(windowSizeW, windowSizeH));
+            }
+
+            var windowPositionX = app.AppConfig.ReadValue("WindowPositionX", -1);
+            var windowPositionY = app.AppConfig.ReadValue("WindowPositionY", -1);
+            if (windowPositionX != -1 && windowPositionY != -1 &&
+                windowPositionX <= da.WorkArea.Width - appWindow.Size.Width &&
+                windowPositionY <= da.WorkArea.Height - appWindow.Size.Height)
+            {
+                appWindow.Move(new PointInt32(windowPositionX, windowPositionY));
+            }
+
+            //Listen for changes to save from now on.  
+            appWindow.Changed += AppWindow_Changed_SaveChanges;
 
             int theme = app.AppConfig.ReadValue("AppTheme", 0);
             SettingsViewModel.AppTheme = (ElementTheme)theme;
@@ -108,12 +126,26 @@ namespace RadioParadisePlayer
             }
         }
 
+        private void AppWindow_Changed_SaveChanges(AppWindow sender, AppWindowChangedEventArgs args)
+        {
+            if (args.DidSizeChange)
+            {
+                app.AppConfig.WriteValue("WindowSizeWidth", appWindow.Size.Width);
+                app.AppConfig.WriteValue("WindowSizeHeight", appWindow.Size.Height);
+            }
+            if (args.DidPositionChange)
+            {
+                app.AppConfig.WriteValue("WindowPositionX", appWindow.Position.X);
+                app.AppConfig.WriteValue("WindowPositionY", appWindow.Position.Y);
+            }
+        }
+
         private async void Global_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             var msgText = e.Message
                           + Environment.NewLine + Environment.NewLine
                           + e.Exception.StackTrace
-                          ;            
+                          ;
             var errorDlg = new MessageDialog(msgText, "Unhandled error");
             WinRT.Interop.InitializeWithWindow.Initialize(errorDlg, WinRT.Interop.WindowNative.GetWindowHandle(this));
             await errorDlg.ShowAsync();
